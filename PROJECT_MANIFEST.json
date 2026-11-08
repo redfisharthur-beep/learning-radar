@@ -1,0 +1,32 @@
+{
+  "project": "Learning Radar",
+  "phase": "Phase 1 foundation",
+  "files": [
+    ".env.example",
+    ".github/ISSUE_TEMPLATE/bug_report.md",
+    ".gitignore",
+    "README.md",
+    "next.config.ts",
+    "package.json",
+    "postcss.config.mjs",
+    "src/app/actions/auth.ts",
+    "src/app/dashboard/page.tsx",
+    "src/app/globals.css",
+    "src/app/layout.tsx",
+    "src/app/login/page.tsx",
+    "src/app/page.tsx",
+    "src/app/register/page.tsx",
+    "src/lib/supabase/client.ts",
+    "src/lib/supabase/server.ts",
+    "src/middleware.ts",
+    "supabase/config.toml",
+    "supabase/migrations/0001_initial_schema.sql",
+    "tailwind.config.ts",
+    "tsconfig.json"
+  ],
+  "notes": [
+    "Supabase project must be created and migration applied by project owner.",
+    "Supabase login must be tested after credentials are configured.",
+    "Minors' privacy and guardian consent workflow must be completed before public launch."
+  ]
+}
