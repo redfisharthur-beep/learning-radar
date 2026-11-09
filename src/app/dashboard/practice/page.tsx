@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 type SearchParams = Promise<{ error?: string }>;
 
@@ -10,8 +11,9 @@ export default async function PracticeHistoryPage({ searchParams }: { searchPara
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  const admin = createAdminClient();
   const [{ data: sets }, { data: subjects }] = await Promise.all([
-    supabase
+    admin
       .from("practice_sets")
       .select("id, title, subject_id, grade, education_stage, question_count, difficulty_level, created_at")
       .eq("user_id", user.id)
