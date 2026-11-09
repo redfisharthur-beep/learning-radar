@@ -252,7 +252,7 @@ export async function POST(request: Request) {
   const [selectionResult, adoptionResult, schoolResult] = await Promise.all([
     supabase
       .from("student_textbook_selections")
-      .select("textbook_edition_id")
+      .select("textbook_edition_id, is_manual_override")
       .eq("user_id", user.id)
       .eq("subject_id", subjectId)
       .eq("academic_year", academicYear)
@@ -279,9 +279,10 @@ export async function POST(request: Request) {
     return jsonError("讀取學校教材版本時發生錯誤，請稍後再試。", 500, "TEXTBOOK_LOOKUP_FAILED");
   }
 
-  const manualEditionId = selectionResult.data?.textbook_edition_id ?? null;
+  const selectedEditionId = selectionResult.data?.textbook_edition_id ?? null;
+  const manualEditionId = selectionResult.data?.is_manual_override ? selectedEditionId : null;
   const adoption = adoptionResult.data;
-  const textbookEditionId = manualEditionId ?? adoption?.textbook_edition_id ?? null;
+  const textbookEditionId = manualEditionId ?? adoption?.textbook_edition_id ?? selectedEditionId;
 
   let editionContext = "目前沒有可核對的學校教材版本或課本單元資料。";
   let publisherLabel = adoption?.source_publisher_label ?? null;
