@@ -10,6 +10,8 @@ const errorMessages: Record<string, string> = {
   "auth-callback": "驗證連結已失效或已使用，請重新寄送驗證信後再試。",
   "resend-email": "請輸入要重新寄送驗證信的電子郵件。",
   "resend-failed": "目前無法重新寄送，請稍後再試或確認電子郵件是否正確。",
+  "email-limit": "Supabase 目前的測試寄信額度已用完，這次沒有寄出驗證信。正式開放前需設定專用寄信服務。",
+  "email-not-authorized": "目前測試寄信服務只允許寄給專案團隊成員，這個收件地址尚未獲授權。正式開放前需設定專用寄信服務。",
 };
 
 export default async function LoginPage({ searchParams }: { searchParams: SearchParams }) {
