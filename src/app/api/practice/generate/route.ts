@@ -365,7 +365,6 @@ export async function POST(request: Request) {
 
   const schema = {
     type: "object",
-    additionalProperties: false,
     properties: {
       title: { type: "string" },
       teacher_note: { type: "string" },
@@ -373,12 +372,10 @@ export async function POST(request: Request) {
         type: "array",
         items: {
           type: "object",
-          additionalProperties: false,
           properties: {
             stem: { type: "string" },
             options: {
               type: "object",
-              additionalProperties: false,
               properties: {
                 A: { type: "string" },
                 B: { type: "string" },
@@ -461,6 +458,7 @@ export async function POST(request: Request) {
       httpStatus: geminiResponse.status,
       apiStatus: apiErrorStatus,
       apiCode: typeof apiError.code === "number" ? apiError.code : undefined,
+      apiMessage: apiErrorMessage?.slice(0, 500),
     });
     if (geminiResponse.status === 400) {
       return jsonError("Gemini API 不接受目前的出題格式或參數，請查看診斷紀錄。", 502, "GEMINI_INVALID_REQUEST");
