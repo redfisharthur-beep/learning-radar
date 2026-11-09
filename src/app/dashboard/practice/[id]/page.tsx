@@ -114,8 +114,9 @@ export default async function PracticeSetPage({ params, searchParams }: Props) {
             {(questions ?? []).map((question) => {
               const options = getOptions(question.options);
               const selected = answerMap[question.id];
-              const correctAnswer = "correct_answer" in question ? question.correct_answer : "";
-              const explanation = "explanation" in question ? question.explanation : "";
+              const correctAnswer = "correct_answer" in question ? String(question.correct_answer) : "";
+              const explanation = "explanation" in question ? String(question.explanation) : "";
+              const concept = String(question.concept ?? "");
               const isCorrect = selected === correctAnswer;
               return (
                 <section key={question.id} className="rounded-2xl border bg-white p-5">
@@ -152,7 +153,7 @@ export default async function PracticeSetPage({ params, searchParams }: Props) {
               <fieldset key={question.id} className="rounded-2xl border bg-white p-5">
                 <legend className="sr-only">第 {question.sort_order} 題</legend>
                 <p className="font-semibold leading-7">{question.sort_order}. {question.stem}</p>
-                {question.concept && <p className="mt-1 text-xs text-slate-500">練習觀念：{question.concept}</p>}
+                {concept && <p className="mt-1 text-xs text-slate-500">練習觀念：{concept}</p>}
                 <div className="mt-4 space-y-2">
                   {letters.map((letter) => (
                     <label key={letter} className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-3 transition hover:border-blue-300 hover:bg-blue-50">
