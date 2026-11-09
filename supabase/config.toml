@@ -16,3 +16,7 @@ additional_redirect_urls = [
   "http://localhost:3000/**",
   "https://learning-radar-wheat.vercel.app/**"
 ]
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
