@@ -307,6 +307,88 @@ export type Database = {
           },
         ]
       }
+      school_textbook_adoptions: {
+        Row: {
+          academic_year: number
+          confidence: number
+          created_at: string
+          education_stage: string
+          grade: number
+          id: string
+          is_active: boolean
+          school_id: string
+          semester: number
+          source_published_at: string | null
+          source_title: string
+          source_type: string
+          source_url: string
+          subject_id: string
+          textbook_edition_id: string
+          updated_at: string
+          verified_at: string
+        }
+        Insert: {
+          academic_year: number
+          confidence?: number
+          created_at?: string
+          education_stage: string
+          grade: number
+          id?: string
+          is_active?: boolean
+          school_id: string
+          semester: number
+          source_published_at?: string | null
+          source_title: string
+          source_type: string
+          source_url: string
+          subject_id: string
+          textbook_edition_id: string
+          updated_at?: string
+          verified_at?: string
+        }
+        Update: {
+          academic_year?: number
+          confidence?: number
+          created_at?: string
+          education_stage?: string
+          grade?: number
+          id?: string
+          is_active?: boolean
+          school_id?: string
+          semester?: number
+          source_published_at?: string | null
+          source_title?: string
+          source_type?: string
+          source_url?: string
+          subject_id?: string
+          textbook_edition_id?: string
+          updated_at?: string
+          verified_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_textbook_adoptions_edition_subject_fkey"
+            columns: ["textbook_edition_id", "subject_id"]
+            isOneToOne: false
+            referencedRelation: "textbook_editions"
+            referencedColumns: ["id", "subject_id"]
+          },
+          {
+            foreignKeyName: "school_textbook_adoptions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_textbook_adoptions_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_textbook_selections: {
         Row: {
           academic_year: number
