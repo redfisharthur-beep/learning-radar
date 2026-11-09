@@ -144,7 +144,7 @@ export default async function StudentProfilePage({ searchParams }: { searchParam
                   {[1, 2, 3, 4, 5, 6].map((grade) => <option key={grade} value={grade}>國小 {grade} 年級</option>)}
                 </optgroup>
                 <optgroup label="國中">
-                  {[7, 8, 9].map((grade) => <option key={grade} value={grade}>國中 {grade - 6} 年級</option>)}
+                  {[7, 8, 9].map((grade) => <option key={grade} value={grade}>{grade} 年級</option>)}
                 </optgroup>
               </select>
             </label>
