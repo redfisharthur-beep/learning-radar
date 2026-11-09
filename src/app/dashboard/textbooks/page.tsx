@@ -52,7 +52,7 @@ export default async function TextbookSettingsPage({ searchParams }: { searchPar
     student?.school_id && student.grade
       ? supabase
           .from("school_textbook_adoptions")
-          .select("subject_id, textbook_edition_id, source_url, source_title, source_published_at, confidence")
+          .select("subject_id, textbook_edition_id, source_url, source_title, source_published_at, confidence, source_publisher_label, mapping_note")
           .eq("school_id", student.school_id)
           .eq("academic_year", academicYear)
           .eq("grade", student.grade)
@@ -144,6 +144,34 @@ export default async function TextbookSettingsPage({ searchParams }: { searchPar
             </p>
           )}
 
+          <section className="mt-5 rounded-2xl border bg-white p-5">
+            <h2 className="font-semibold">外部版本交叉查核</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-600">
+              可用上方顯示的學校名稱，到以下資料站核對同一學年度、同一年級的五科版本。外部查詢結果會作為比對線索；若不一致，仍以學校教務處當年度公告為準。
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <a
+                href="https://version.oneclass.com.tw/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                OneClass 學校版本查詢 ↗
+              </a>
+              <a
+                href="https://school.edubaania.com/textbooks/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                AIMii 學校資訊站 ↗
+              </a>
+            </div>
+            <p className="mt-2 text-xs leading-5 text-slate-500">
+              OneClass 提供審定本版本查詢；AIMii 彙整出版社公開版本資訊。兩者都不是學校採用版本的最終核定來源。
+            </p>
+          </section>
+
           <div className="mt-5 space-y-3">
             {(subjects ?? []).map((subject) => {
               const choices = availableEditions.filter((edition) => edition.subject_id === subject.id);
@@ -152,9 +180,12 @@ export default async function TextbookSettingsPage({ searchParams }: { searchPar
               const adoption = adoptionBySubject.get(subject.id);
               const editionId = validSavedEditionId ?? adoption?.textbook_edition_id;
               const edition = editionId ? editionById.get(editionId) : undefined;
-              const publisherName = edition ? publisherNames.get(edition.publisher_id) : undefined;
+              const catalogPublisherName = edition ? publisherNames.get(edition.publisher_id) : undefined;
               const isManuallyChanged = Boolean(validSavedEditionId);
               const hasSchoolSource = Boolean(adoption && !isManuallyChanged);
+              const publisherName = isManuallyChanged
+                ? catalogPublisherName
+                : adoption?.source_publisher_label ?? catalogPublisherName;
 
               return (
                 <section key={subject.id} className="rounded-2xl border bg-white p-5 shadow-sm">
@@ -183,6 +214,11 @@ export default async function TextbookSettingsPage({ searchParams }: { searchPar
                             ? "目前資料庫尚未找到這所學校此科目的可核對公告，不會自行猜測。"
                             : "設定就讀學校後，系統會自動查找版本。"}
                     </p>
+                    {adoption?.mapping_note && (
+                      <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900">
+                        版本名稱對應說明：{adoption.mapping_note}
+                      </p>
+                    )}
                     {adoption?.source_url && (
                       <a
                         href={adoption.source_url}
