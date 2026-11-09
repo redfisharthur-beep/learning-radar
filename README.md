@@ -48,7 +48,13 @@
 - 學生首頁與受保護的 Dashboard。
 - 學生基本資料設定：顯示名稱、學段、年級、學校搜尋與選擇（`/dashboard/profile`）。
 - 年級顯示統一採教育階段連續編號：國小 1～6 年級、國中 7～9 年級；資料庫保留 7、8、9 的原始年級值，不轉回國中一、二、三年級。
-- 教材版本選擇介面（`/dashboard/textbooks`）：依學段、年級、科目、學年度與冊次篩選。\n- 教材版本頁改為先顯示學校公告自動帶入結果，只有需要時再展開「修改版本」，不再要求學生逐科先手動挑選。\n- 已建立 `school_textbook_adoptions` 學校採用版本資料表，保存學校、學年度、年級、科目、冊次、審核來源網址、公告日期與信心值。\n- 第一批已匯入市立安平國中 115 學年度 26 筆可與審定版本清冊對應的資料。全台學校採用版本資料仍在擴充，尚未達到 3,349 所學校全覆蓋。\n- 若學校公告與國家教育研究院審定可選清冊出現版本不一致，系統不會擅自轉換或猜測，會保留為待確認項目。
+- 教材版本頁（`/dashboard/textbooks`）先依學校公告自動帶入版本，只有需要時才展開「修改版本」。
+- 教材版本頁提供 OneClass 與 AIMii（EduBaania）外部交叉查核入口。
+- 學校公告的原始出版社名稱與「審定版本資料庫」中的正式出版者分開保存，避免例如學校稱「翰林」、審定出版者標示「佳音」時發生錯配。
+- 教材版本頁改為先顯示學校公告自動帶入結果，只有需要時再展開「修改版本」，不再要求學生逐科先手動挑選。
+- 已建立 `school_textbook_adoptions` 學校採用版本資料表，保存學校、學年度、年級、科目、冊次、審核來源網址、公告日期與信心值。
+- 第一批已匯入市立安平國中 115 學年度 26 筆可與審定版本清冊對應的資料。全台學校採用版本資料仍在擴充，尚未達到 3,349 所學校全覆蓋。
+- 若學校公告與國家教育研究院審定可選清冊出現版本不一致，系統不會擅自轉換或猜測，會保留為待確認項目。
 - 學生資料及教材選擇由 Supabase RLS 限制使用者只能管理自己的資料。
 
 ## 學校名錄
@@ -69,7 +75,17 @@
 - 各出版社實際目錄、課文、單元章節與知識點內容尚未匯入；介面不會虛構教材資訊。
 - 目前 `curriculum_units`、`knowledge_points`、`unit_knowledge_points` 尚無資料。
 
-## 學校教材版本來源與推定規則\n\n- 國家教育研究院審定本清冊只列出各年級可使用的審定出版社，不等於各校實際採用版本。\n- 學校實際版本優先採用該校教務處公告，保存公告連結與日期供使用者核對。\n- 目前已匯入 1 所學校的第一批 26 筆可核對資料；全台覆蓋率尚未完成，未有資料時不會自行推測。\n\n## 資料庫安全
+## 學校教材版本來源與推定規則
+
+- 國家教育研究院審定本清冊提供的是可使用的審定出版社／冊次，不等於各校實際採用版本。
+- 學校實際版本優先採用該校教務處公告，保存公告連結、公告日期、原文出版社名稱與比對證據。
+- OneClass 查詢入口：https://version.oneclass.com.tw/
+- AIMii（EduBaania）查詢入口：https://school.edubaania.com/textbooks/
+- OneClass 頁面定位為審定本使用版本查詢；AIMii 說明資料彙整自出版社公開資訊並交叉核對。兩者作為第二來源，不取代學校公告。
+- 已建立 `school_textbook_adoption_evidence` 保存官方公告及第二來源的查核軌跡。
+- 目前完成 1 所學校 115 學年度 30 筆年級／科目／學期資料；全台覆蓋率尚未完成，未有資料時不會自行推測。
+- 英文資料名稱對應範例：安平國中公告稱「翰林」，115 學年度英語審定清冊的出版者欄為「佳音」；第三方英文版本整理明確說明佳音對應翰林版。系統保留學校原始標籤，同時指向佳音審定教材。
+## 資料庫安全
 
 - 全部 13 張 public 資料表均啟用 RLS。
 - `anon` 不具備 public 資料表或序列權限。
@@ -89,7 +105,9 @@
 4. `supabase/migrations/20261109060706_seed_naer_115_textbook_editions.sql`
 5. `supabase/migrations/20261109060932_correct_grade9_social_approved_publishers.sql`
 6. `supabase/migrations/20261109080737_tighten_public_table_grants.sql`
-7. `supabase/migrations/20261109081145_tighten_public_default_privileges.sql`\n8. `supabase/migrations/20261109100000_add_school_textbook_adoptions.sql`
+7. `supabase/migrations/20261109081145_tighten_public_default_privileges.sql`
+8. `supabase/migrations/20261109100000_add_school_textbook_adoptions.sql`
+9. `supabase/migrations/20261109110000_preserve_school_publisher_labels_and_evidence.sql`
 
 ## 本機啟動
 
