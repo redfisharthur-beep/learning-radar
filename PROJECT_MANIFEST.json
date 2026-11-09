@@ -39,17 +39,17 @@
   ],
   "notes": [
     "Supabase project learning-radar is active in Tokyo (ap-northeast-1).",
-    "Seven database migrations have been applied to the remote project and are recorded in its migration history.",
-    "115 academic-year Ministry of Education school directory imported: 2,609 elementary and 740 junior-high schools.",
-    "238 active 115 academic-year NAER-approved textbook publisher/grade/subject/volume options seeded; Grade 9 Social Studies publisher options corrected against the official directory.",
-    "All 13 public tables have RLS enabled. Anonymous role has no public table or sequence grants; authenticated role has minimum application grants, with RLS enforcing row ownership.",
+    "Seven database migrations have been applied to the remote project.",
+    "3,349 Ministry of Education school records and 238 active 115 AY NAER-approved textbook options have been seeded.",
+    "All 13 public tables have RLS enabled. anon has no public table or sequence grants; authenticated has minimum application grants, with RLS enforcing row ownership.",
     "Default privileges for future public tables, sequences and functions created by postgres have been tightened.",
-    "GitHub Actions passed npm ci, TypeScript typecheck and Next.js production build on Node.js 26.",
-    "Vercel Production deployment is READY at https://learning-radar-wheat.vercel.app; Preview deployments remain SSO protected while Production is publicly accessible.",
-    "Signup email confirmation callback, differentiated login errors and resend-confirmation action are implemented. Real mailbox end-to-end verification remains untested.",
-    "supabase/config.toml contains production Site URL and redirect patterns. The hosted Supabase Dashboard Authentication URL Configuration must still be checked/set manually; changing config.toml does not update hosted Auth settings.",
-    "Supabase Security Advisor currently reports leaked-password protection disabled; this feature requires Pro or above.",
-    "Publisher textbook contents, unit lists and knowledge-point details still require verified/licensed source data; AI question generation and assessment analysis are not yet implemented.",
+    "Email/password signup and login are implemented without a verification-email workflow. Hosted Supabase Dashboard still requires Confirm Email to be disabled manually.",
+    "When Confirm Email is disabled, signup returns a session; server action redirects directly to /dashboard. If no session is returned, the app reports that the hosted setting is still enabled.",
+    "Node.js 26.x is used by Vercel and GitHub Actions; CI has passed on the current implementation before this latest auth adjustment, and the latest commit triggers a new run.",
+    "Vercel Production domain is https://learning-radar-wheat.vercel.app; Preview deployments remain SSO protected.",
+    "LINE Login is not implemented; can be added later with a LINE Login channel ID, channel secret and callback URL configuration.",
+    "Disabling email confirmation allows unverified email strings to register. A user may not be able to recover a forgotten password via email if they cannot access that mailbox.",
+    "Textbook unit content and knowledge points are not yet imported; AI question generation and assessment analysis are not yet implemented.",
     "Minors' privacy notice and guardian consent workflow must be completed before public launch."
   ]
 }
