@@ -457,7 +457,22 @@ export async function POST(request: Request) {
     if (openAiResponse.status === 401) return jsonError("AI 服務金鑰無效，請檢查 Vercel 的 OPENAI_API_KEY。", 502, "OPENAI_AUTH_FAILED");
     if (openAiResponse.status === 403) return jsonError("OpenAI API 拒絕此請求，請檢查 API 專案權限與帳務狀態。", 502, "OPENAI_PERMISSION_DENIED");
     if (openAiResponse.status === 404) return jsonError("找不到指定的 AI 模型，請檢查 OPENAI_MODEL 設定。", 502, "OPENAI_MODEL_NOT_FOUND");
-    if (openAiResponse.status === 429) return jsonError("AI 服務目前忙碌或 API 額度不足，請檢查用量與帳務設定。", 429, "OPENAI_RATE_LIMIT");
+    if (openAiResponse.status === 429) {
+      const apiErrorCode = typeof apiError.code === "string" ? apiError.code : "";
+      if (apiErrorCode === "credit_balance_exhausted") {
+        return jsonError("OpenAI API 預付額度已用完。請至 API Billing 加值，待餘額更新後再產生題目。", 429, "OPENAI_CREDIT_BALANCE_EXHAUSTED");
+      }
+      if (apiErrorCode === "organization_spend_limit_exceeded" || apiErrorCode === "project_spend_limit_exceeded") {
+        return jsonError("OpenAI API 已達到組織或專案支出上限。請至 API Limits 調整支出上限後再試。", 429, "OPENAI_SPEND_LIMIT_EXCEEDED");
+      }
+      if (apiErrorCode === "organization_usage_limit_exceeded") {
+        return jsonError("OpenAI API 已達到組織核准的使用上限，請檢查 API Limits 或聯繫管理員。", 429, "OPENAI_USAGE_LIMIT_EXCEEDED");
+      }
+      if (apiErrorCode === "rate_limit_exceeded" || apiError.code === "slow_down") {
+        return jsonError("AI 請求過於頻繁，請稍候再試。", 429, "OPENAI_RATE_LIMIT");
+      }
+      return jsonError("OpenAI API 用量或額度限制已觸發。請檢查 API Billing 與 Limits。", 429, "OPENAI_QUOTA_OR_RATE_LIMIT");
+    }
     if (openAiResponse.status === 400) return jsonError("OpenAI API 不接受目前的出題參數，請查看診斷紀錄。", 502, "OPENAI_INVALID_REQUEST");
     return jsonError("AI 出題服務暫時無法完成請求，請稍後再試。", 502, "OPENAI_REQUEST_FAILED");
   }
