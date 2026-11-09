@@ -135,7 +135,7 @@ export default async function PracticeSetPage({ params, searchParams }: Props) {
                     ))}
                   </div>
                   <div className="mt-4 rounded-xl bg-blue-50 p-4 text-sm leading-7 text-blue-950">
-                    <p className="font-semibold">觀念：{question.concept}</p>
+                    <p className="font-semibold">觀念：{concept}</p>
                     <p className="mt-1">{explanation}</p>
                   </div>
                 </section>
@@ -149,6 +149,7 @@ export default async function PracticeSetPage({ params, searchParams }: Props) {
           <input type="hidden" name="practice_set_id" value={id} />
           {(questions ?? []).map((question) => {
             const options = getOptions(question.options);
+            const concept = String(question.concept ?? "");
             return (
               <fieldset key={question.id} className="rounded-2xl border bg-white p-5">
                 <legend className="sr-only">第 {question.sort_order} 題</legend>
