@@ -55,9 +55,14 @@ export default async function PracticeSetPage({ params, searchParams }: Props) {
     attempt = data;
   }
 
-  const { data: questions } = await admin
-    .from("practice_questions")
-    .select("id, sort_order, stem, options, correct_answer, explanation, concept, difficulty_level")
+  const questionsQuery = attempt
+    ? admin
+        .from("practice_questions")
+        .select("id, sort_order, stem, options, correct_answer, explanation, concept, difficulty_level")
+    : admin
+        .from("practice_questions")
+        .select("id, sort_order, stem, options, concept, difficulty_level");
+  const { data: questions } = await questionsQuery
     .eq("practice_set_id", id)
     .order("sort_order");
 
@@ -109,7 +114,9 @@ export default async function PracticeSetPage({ params, searchParams }: Props) {
             {(questions ?? []).map((question) => {
               const options = getOptions(question.options);
               const selected = answerMap[question.id];
-              const isCorrect = selected === question.correct_answer;
+              const correctAnswer = "correct_answer" in question ? question.correct_answer : "";
+              const explanation = "explanation" in question ? question.explanation : "";
+              const isCorrect = selected === correctAnswer;
               return (
                 <section key={question.id} className="rounded-2xl border bg-white p-5">
                   <div className="flex items-start justify-between gap-3">
@@ -120,15 +127,15 @@ export default async function PracticeSetPage({ params, searchParams }: Props) {
                   </div>
                   <div className="mt-3 space-y-2 text-sm">
                     {letters.map((letter) => (
-                      <p key={letter} className={letter === question.correct_answer ? "rounded-lg bg-green-50 px-3 py-2 text-green-900" : letter === selected ? "rounded-lg bg-red-50 px-3 py-2 text-red-800" : "rounded-lg bg-slate-50 px-3 py-2 text-slate-700"}>
+                      <p key={letter} className={letter === correctAnswer ? "rounded-lg bg-green-50 px-3 py-2 text-green-900" : letter === selected ? "rounded-lg bg-red-50 px-3 py-2 text-red-800" : "rounded-lg bg-slate-50 px-3 py-2 text-slate-700"}>
                         <span className="mr-2 font-semibold">{letter}.</span>{options[letter]}
-                        {letter === question.correct_answer ? "（正確答案）" : letter === selected ? "（你的答案）" : ""}
+                        {letter === correctAnswer ? "（正確答案）" : letter === selected ? "（你的答案）" : ""}
                       </p>
                     ))}
                   </div>
                   <div className="mt-4 rounded-xl bg-blue-50 p-4 text-sm leading-7 text-blue-950">
                     <p className="font-semibold">觀念：{question.concept}</p>
-                    <p className="mt-1">{question.explanation}</p>
+                    <p className="mt-1">{explanation}</p>
                   </div>
                 </section>
               );
