@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -108,6 +109,13 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return jsonError("登入狀態已失效，請重新登入。", 401, "UNAUTHENTICATED");
 
+  let admin;
+  try {
+    admin = createAdminClient();
+  } catch {
+    return jsonError("伺服器尚未設定 Supabase Secret Key，請檢查 Vercel 環境變數。", 503, "SUPABASE_ADMIN_NOT_CONFIGURED");
+  }
+
   let body: Record<string, unknown>;
   try {
     const parsed = await request.json();
@@ -155,7 +163,7 @@ export async function POST(request: Request) {
   if (subjectError || !subject) return jsonError("找不到這個科目。", 400, "SUBJECT_NOT_FOUND");
 
   const limitSince = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-  const { count: recentCount, error: rateError } = await supabase
+  const { count: recentCount, error: rateError } = await admin
     .from("practice_sets")
     .select("id", { count: "exact", head: true })
     .eq("user_id", user.id)
@@ -362,7 +370,7 @@ export async function POST(request: Request) {
   const usage = responseData.usage && typeof responseData.usage === "object"
     ? responseData.usage as Record<string, unknown>
     : {};
-  const { data: practiceSet, error: setError } = await supabase
+  const { data: practiceSet, error: setError } = await admin
     .from("practice_sets")
     .insert({
       user_id: user.id,
@@ -403,9 +411,9 @@ export async function POST(request: Request) {
     difficulty_level: question.difficulty_level,
   }));
 
-  const { error: questionError } = await supabase.from("practice_questions").insert(rows);
+  const { error: questionError } = await admin.from("practice_questions").insert(rows);
   if (questionError) {
-    await supabase.from("practice_sets").delete().eq("id", practiceSet.id).eq("user_id", user.id);
+    await admin.from("practice_sets").delete().eq("id", practiceSet.id).eq("user_id", user.id);
     return jsonError("題目儲存不完整，已取消這份題本，請重新產生。", 500, "QUESTION_SAVE_FAILED");
   }
 
