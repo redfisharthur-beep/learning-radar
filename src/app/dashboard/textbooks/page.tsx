@@ -45,7 +45,7 @@ export default async function TextbookSettingsPage({ searchParams }: { searchPar
       : Promise.resolve({ data: [] }),
     supabase
       .from("student_textbook_selections")
-      .select("subject_id, textbook_edition_id, semester")
+      .select("subject_id, textbook_edition_id, semester, is_manual_override")
       .eq("user_id", user.id)
       .eq("academic_year", academicYear)
       .eq("semester", semester),
@@ -69,7 +69,7 @@ export default async function TextbookSettingsPage({ searchParams }: { searchPar
   ]);
 
   const publisherNames = new Map((publishers ?? []).map((publisher) => [publisher.id, publisher.name]));
-  const selectedEditions = new Map((selections ?? []).map((selection) => [selection.subject_id, selection.textbook_edition_id]));
+  const selectedEditions = new Map((selections ?? []).map((selection) => [selection.subject_id, selection]));
   const availableEditions = editions ?? [];
   const editionById = new Map(availableEditions.map((edition) => [edition.id, edition]));
   const adoptionBySubject = new Map((adoptions ?? []).map((adoption) => [adoption.subject_id, adoption]));
@@ -175,13 +175,16 @@ export default async function TextbookSettingsPage({ searchParams }: { searchPar
           <div className="mt-5 space-y-3">
             {(subjects ?? []).map((subject) => {
               const choices = availableEditions.filter((edition) => edition.subject_id === subject.id);
-              const savedEditionId = selectedEditions.get(subject.id);
+              const savedSelection = selectedEditions.get(subject.id);
+              const savedEditionId = savedSelection?.textbook_edition_id;
               const validSavedEditionId = savedEditionId && editionById.has(savedEditionId) ? savedEditionId : undefined;
               const adoption = adoptionBySubject.get(subject.id);
-              const editionId = validSavedEditionId ?? adoption?.textbook_edition_id;
+              const isManuallyChanged = Boolean(savedSelection?.is_manual_override && validSavedEditionId);
+              const editionId = isManuallyChanged
+                ? validSavedEditionId
+                : adoption?.textbook_edition_id ?? validSavedEditionId;
               const edition = editionId ? editionById.get(editionId) : undefined;
               const catalogPublisherName = edition ? publisherNames.get(edition.publisher_id) : undefined;
-              const isManuallyChanged = Boolean(validSavedEditionId);
               const hasSchoolSource = Boolean(adoption && !isManuallyChanged);
               const publisherName = isManuallyChanged
                 ? catalogPublisherName
