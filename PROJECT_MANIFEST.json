@@ -19,14 +19,18 @@
     "src/lib/supabase/client.ts",
     "src/lib/supabase/server.ts",
     "src/middleware.ts",
+    "src/types/database.ts",
     "supabase/config.toml",
     "supabase/migrations/0001_initial_schema.sql",
+    "supabase/migrations/0002_index_student_profile_school_fk.sql",
     "tailwind.config.ts",
     "tsconfig.json"
   ],
   "notes": [
-    "Supabase project must be created and migration applied by project owner.",
-    "Supabase login must be tested after credentials are configured.",
-    "Minors' privacy and guardian consent workflow must be completed before public launch."
+    "Supabase project learning-radar is active in Tokyo (ap-northeast-1).",
+    "Initial schema and school foreign-key index migrations have been applied to the Tokyo project.",
+    "Project uses NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY for browser-safe access with RLS.",
+    "Production Auth redirect URLs and Vercel environment variables remain to be configured and tested.",
+    "Minors' privacy notice and guardian consent workflow must be completed before public launch."
   ]
 }
