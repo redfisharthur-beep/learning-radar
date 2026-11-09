@@ -6,6 +6,19 @@ export const maxDuration = 60;
 export const preferredRegion = "hnd1";
 
 const MODEL = process.env.OPENAI_MODEL?.trim() || "gpt-6-luna";
+
+export async function GET() {
+  return Response.json(
+    {
+      service: "learning-radar-practice-generation",
+      diagnosticVersion: "2026-11-09-2",
+      model: MODEL,
+      apiKeyConfigured: Boolean(process.env.OPENAI_API_KEY?.trim()),
+      deploymentCommit: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
+    },
+    { headers: { "Cache-Control": "no-store, max-age=0" } }
+  );
+}
 const SUBJECT_IDS = ["chinese", "english", "math", "science", "social"] as const;
 const ANSWERS = ["A", "B", "C", "D"] as const;
 const DIFFICULTIES = ["basic", "intermediate", "advanced", "mixed"] as const;
