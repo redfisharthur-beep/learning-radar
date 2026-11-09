@@ -85,6 +85,24 @@ export default async function StudentProfilePage({ searchParams }: { searchParam
       )}
 
       <section className="mt-8 rounded-2xl border bg-white p-6 shadow-sm">
+        <form id="school-search" method="get" action="/dashboard/profile" className="mb-6 rounded-xl bg-slate-50 p-4">
+          <label className="block text-sm font-medium text-slate-700">
+            搜尋學校
+            <span className="mt-1 block text-xs font-normal text-slate-500">可輸入學校名稱、縣市、行政區或學校代碼。</span>
+          </label>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+            <input
+              name="q"
+              defaultValue={params.q ?? ""}
+              className="min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3"
+              placeholder="例如：彰化、板橋國小"
+            />
+            <button className="rounded-xl border border-slate-300 bg-white px-5 py-3 font-medium">
+              搜尋學校
+            </button>
+          </div>
+        </form>
+
         <form action={updateStudentProfile} className="space-y-5">
           <label className="block text-sm font-medium text-slate-700">
             學生顯示名稱
@@ -133,21 +151,8 @@ export default async function StudentProfilePage({ searchParams }: { searchParam
 
           <div className="border-t pt-5">
             <h2 className="font-semibold">就讀學校</h2>
-            <p className="mt-1 text-sm text-slate-500">可輸入學校名稱、縣市、行政區或學校代碼搜尋。</p>
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-              <input
-                name="q"
-                form="school-search"
-                defaultValue={params.q ?? ""}
-                className="min-w-0 flex-1 rounded-xl border border-slate-300 px-4 py-3"
-                placeholder="例如：彰化、板橋國小"
-              />
-              <button form="school-search" className="rounded-xl border border-slate-300 bg-slate-50 px-5 py-3 font-medium">
-                搜尋學校
-              </button>
-            </div>
-            <form id="school-search" method="get" action="/dashboard/profile" className="hidden" />
-            <label className="mt-4 block text-sm font-medium text-slate-700">
+            <p className="mt-1 text-sm text-slate-500">請先使用上方欄位搜尋，再從下方選擇學校。</p>
+          <label className="mt-4 block text-sm font-medium text-slate-700">
               選擇學校
               <select
                 name="school_id"
