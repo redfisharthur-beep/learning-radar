@@ -184,6 +184,208 @@ export type Database = {
         }
         Relationships: []
       }
+      practice_attempts: {
+        Row: {
+          answers: Json
+          completed_at: string
+          correct_count: number
+          created_at: string
+          id: string
+          practice_set_id: string
+          score: number
+          total_count: number
+          user_id: string
+        }
+        Insert: {
+          answers: Json
+          completed_at?: string
+          correct_count: number
+          created_at?: string
+          id?: string
+          practice_set_id: string
+          score: number
+          total_count: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string
+          correct_count?: number
+          created_at?: string
+          id?: string
+          practice_set_id?: string
+          score?: number
+          total_count?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practice_attempts_practice_set_id_fkey"
+            columns: ["practice_set_id"]
+            isOneToOne: false
+            referencedRelation: "practice_sets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practice_attempts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practice_questions: {
+        Row: {
+          concept: string
+          correct_answer: string
+          created_at: string
+          difficulty_level: string
+          explanation: string
+          id: string
+          options: Json
+          practice_set_id: string
+          question_type: string
+          sort_order: number
+          stem: string
+        }
+        Insert: {
+          concept: string
+          correct_answer: string
+          created_at?: string
+          difficulty_level: string
+          explanation: string
+          id?: string
+          options: Json
+          practice_set_id: string
+          question_type?: string
+          sort_order: number
+          stem: string
+        }
+        Update: {
+          concept?: string
+          correct_answer?: string
+          created_at?: string
+          difficulty_level?: string
+          explanation?: string
+          id?: string
+          options?: Json
+          practice_set_id?: string
+          question_type?: string
+          sort_order?: number
+          stem?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practice_questions_practice_set_id_fkey"
+            columns: ["practice_set_id"]
+            isOneToOne: false
+            referencedRelation: "practice_sets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practice_sets: {
+        Row: {
+          academic_year: number
+          created_at: string
+          difficulty_level: string
+          education_stage: string
+          generation_source: string
+          grade: number
+          id: string
+          input_tokens: number | null
+          model: string
+          output_tokens: number | null
+          question_count: number
+          school_id: string | null
+          school_name_snapshot: string | null
+          scope_text: string
+          semester: number
+          subject_id: string
+          textbook_edition_id: string | null
+          textbook_publisher_label: string | null
+          textbook_source_url: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          academic_year: number
+          created_at?: string
+          difficulty_level: string
+          education_stage: string
+          generation_source?: string
+          grade: number
+          id?: string
+          input_tokens?: number | null
+          model: string
+          output_tokens?: number | null
+          question_count: number
+          school_id?: string | null
+          school_name_snapshot?: string | null
+          scope_text: string
+          semester: number
+          subject_id: string
+          textbook_edition_id?: string | null
+          textbook_publisher_label?: string | null
+          textbook_source_url?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          academic_year?: number
+          created_at?: string
+          difficulty_level?: string
+          education_stage?: string
+          generation_source?: string
+          grade?: number
+          id?: string
+          input_tokens?: number | null
+          model?: string
+          output_tokens?: number | null
+          question_count?: number
+          school_id?: string | null
+          school_name_snapshot?: string | null
+          scope_text?: string
+          semester?: number
+          subject_id?: string
+          textbook_edition_id?: string | null
+          textbook_publisher_label?: string | null
+          textbook_source_url?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practice_sets_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practice_sets_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practice_sets_textbook_edition_id_fkey"
+            columns: ["textbook_edition_id"]
+            isOneToOne: false
+            referencedRelation: "textbook_editions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practice_sets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
