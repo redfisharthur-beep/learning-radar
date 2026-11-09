@@ -345,14 +345,44 @@ export async function POST(request: Request) {
       }),
       signal: AbortSignal.timeout(50000),
     });
-  } catch {
-    return jsonError("連線 AI 模型逾時或暫時失敗，請稍後再試。", 504, "OPENAI_TIMEOUT");
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error("Unknown fetch error");
+    const cause = err.cause && typeof err.cause === "object"
+      ? err.cause as Record<string, unknown>
+      : {};
+    const causeCode = typeof cause.code === "string" ? cause.code : undefined;
+    const timedOut = err.name === "TimeoutError" || err.name === "AbortError";
+    console.error("[practice.generate] OpenAI fetch failed", {
+      errorName: err.name,
+      causeName: typeof cause.name === "string" ? cause.name : undefined,
+      causeCode,
+      timedOut,
+    });
+    return jsonError(
+      timedOut
+        ? "連線 OpenAI API 逾時，請稍後再試。"
+        : "無法連線至 OpenAI API，請稍後再試（診斷代碼：OPENAI_CONNECTION_FAILED）。",
+      timedOut ? 504 : 502,
+      timedOut ? "OPENAI_TIMEOUT" : "OPENAI_CONNECTION_FAILED"
+    );
   }
 
   const responseData = await openAiResponse.json().catch(() => ({})) as Record<string, unknown>;
   if (!openAiResponse.ok) {
+    const apiError = responseData.error && typeof responseData.error === "object"
+      ? responseData.error as Record<string, unknown>
+      : {};
+    console.error("[practice.generate] OpenAI API returned an error", {
+      status: openAiResponse.status,
+      type: typeof apiError.type === "string" ? apiError.type : undefined,
+      code: typeof apiError.code === "string" ? apiError.code : undefined,
+      param: typeof apiError.param === "string" ? apiError.param : undefined,
+    });
     if (openAiResponse.status === 401) return jsonError("AI 服務金鑰無效，請檢查 Vercel 的 OPENAI_API_KEY。", 502, "OPENAI_AUTH_FAILED");
-    if (openAiResponse.status === 429) return jsonError("AI 服務目前忙碌或額度不足，請稍後再試。", 429, "OPENAI_RATE_LIMIT");
+    if (openAiResponse.status === 403) return jsonError("OpenAI API 拒絕此請求，請檢查 API 專案權限與帳務狀態。", 502, "OPENAI_PERMISSION_DENIED");
+    if (openAiResponse.status === 404) return jsonError("找不到指定的 AI 模型，請檢查 OPENAI_MODEL 設定。", 502, "OPENAI_MODEL_NOT_FOUND");
+    if (openAiResponse.status === 429) return jsonError("AI 服務目前忙碌或 API 額度不足，請檢查用量與帳務設定。", 429, "OPENAI_RATE_LIMIT");
+    if (openAiResponse.status === 400) return jsonError("OpenAI API 不接受目前的出題參數，請查看診斷紀錄。", 502, "OPENAI_INVALID_REQUEST");
     return jsonError("AI 出題服務暫時無法完成請求，請稍後再試。", 502, "OPENAI_REQUEST_FAILED");
   }
 
