@@ -1,6 +1,6 @@
 {
   "project": "Learning Radar",
-  "phase": "Phase 3 - AI-generated practice, saved questions and student answer workflow (pre-pilot)",
+  "phase": "Phase 3 - AI-generated practice, learning history and misconception analytics (pre-pilot)",
   "files": [
     ".env.example",
     ".github/ISSUE_TEMPLATE/bug_report.md",
@@ -46,11 +46,17 @@
     "src/components/practice/NewPracticeForm.tsx",
     "src/lib/supabase/admin.ts",
     "supabase/migrations/20261109130000_add_ai_practice_question_workflow.sql",
-    "supabase/migrations/20261109140000_secure_practice_answer_access_and_scoring.sql"
+    "supabase/migrations/20261109140000_secure_practice_answer_access_and_scoring.sql",
+    "src/app/actions/mistake-review.ts",
+    "src/app/dashboard/progress/page.tsx",
+    "src/app/dashboard/practice/mistakes/page.tsx",
+    "supabase/migrations/20261109150000_secure_learning_progress_and_wrong_answer_analytics.sql",
+    "supabase/migrations/20261109153000_record_practice_answers_after_attempt_insert.sql",
+    "supabase/migrations/20261109160000_allow_variable_question_count_for_mistake_reviews.sql"
   ],
   "notes": [
     "Supabase project learning-radar is active in Tokyo (ap-northeast-1).",
-    "Eleven database migrations have been applied to the remote project.",
+    "Fourteen database migrations have been applied to the remote project.",
     "3,349 Ministry of Education school records and 238 active 115 AY NAER-approved textbook options have been seeded.",
     "All 18 public tables have RLS enabled. anon has no public table or sequence grants; authenticated has minimum application grants, with RLS enforcing row ownership. Practice answer keys are server-only.",
     "Default privileges for future public tables, sequences and functions created by postgres have been tightened.",
@@ -73,6 +79,11 @@
     "OpenAI API Key is not yet configured in Vercel Production. Add OPENAI_API_KEY as a server-side Production environment variable and redeploy to enable live model calls. OPENAI_MODEL is optional.",
     "The first AI question release creates original multiple-choice practice questions only and uses the student's typed scope as the primary content source because publisher curriculum unit and knowledge-point tables are not yet populated.",
     "The current Vercel Production environment has no OPENAI_API_KEY configured. The generation API returns OPENAI_NOT_CONFIGURED until the user adds the secret in Project Settings > Environment Variables and redeploys.",
-    "The quiz route only retrieves answer keys after an attempt has been submitted. Database privileges prevent browser access to practice_questions and practice_attempts; a private trigger recalculates scores from the answer key."
+    "The quiz route only retrieves answer keys after an attempt has been submitted. Database privileges prevent browser access to practice_questions and practice_attempts; a private trigger recalculates scores from the answer key.",
+    "Learning progress dashboard is implemented for the latest 90 days: completed sessions, question volume, average score, overall accuracy, last-seven-day activity, last-ten score trend, per-subject performance and attempt timeline.",
+    "Wrong-answer analysis groups real question-level attempts by subject and concept, calculates error counts and accuracy, highlights repeated concept mistakes and links to the original question explanation.",
+    "Each submitted attempt is recorded by a Postgres AFTER INSERT trigger in public.practice_attempt_answers, including selected option, answer key, correctness, subject, concept and timestamp. The table has RLS enabled and no browser-role privileges; only the server-side Supabase service role can read it.",
+    "Students can create a mistake-review set by subject from up to 10 recent unique questions they previously missed. Review sets are explicitly marked mistake_review and are not misrepresented as newly generated AI questions.",
+    "Historical analytics are based on recorded attempts; this release starts accumulating question-level history from the migration onward. Earlier attempts are not inferred if per-question selections were not recorded."
   ]
 }
