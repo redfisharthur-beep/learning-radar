@@ -7,6 +7,7 @@ const errorMessages: Record<string, string> = {
   missing: "請輸入電子郵件與密碼。",
   unverified: "這個電子郵件尚未完成驗證，請先收取驗證信，或使用下方功能重新寄送。",
   credentials: "電子郵件或密碼不正確，請重新確認。",
+  "auth-callback": "驗證連結已失效或已使用，請重新寄送驗證信後再試。",
   "resend-email": "請輸入要重新寄送驗證信的電子郵件。",
   "resend-failed": "目前無法重新寄送，請稍後再試或確認電子郵件是否正確。",
 };
