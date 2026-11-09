@@ -46,19 +46,19 @@ export async function submitPracticeAttempt(formData: FormData) {
   }
 
   const score = Number(((correctCount / questions.length) * 100).toFixed(2));
-  const { data: attempt, error } = await admin
+  const attemptId = crypto.randomUUID();
+  const { error } = await supabase
     .from("practice_attempts")
     .insert({
+      id: attemptId,
       practice_set_id: setId,
       user_id: user.id,
       answers,
       correct_count: correctCount,
       total_count: questions.length,
       score,
-    })
-    .select("id")
-    .single();
+    });
 
-  if (error || !attempt) redirect("/dashboard/practice/" + setId + "?error=save");
-  redirect("/dashboard/practice/" + setId + "?result=" + attempt.id);
+  if (error) redirect("/dashboard/practice/" + setId + "?error=save");
+  redirect("/dashboard/practice/" + setId + "?result=" + attemptId);
 }
