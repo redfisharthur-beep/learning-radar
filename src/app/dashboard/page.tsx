@@ -37,6 +37,8 @@ export default async function DashboardPage() {
         <Link href="/dashboard/practice/new" className="rounded-xl border border-blue-200 bg-blue-50 px-5 py-4 font-semibold text-blue-800 hover:bg-blue-100">AI 智慧出題 <span className="mt-1 block text-xs font-normal text-blue-700">依段考範圍產生 5 或 10 題練習</span></Link>
         <Link href="/dashboard/practice" className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 font-semibold text-slate-800 hover:bg-slate-100">我的練習題本 <span className="mt-1 block text-xs font-normal text-slate-600">查看題本、成績與解析</span></Link>
         <Link href="/dashboard/profile" className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 font-semibold text-slate-800 hover:bg-slate-100">學生基本資料 <span className="mt-1 block text-xs font-normal text-slate-600">設定學校、學段與年級</span></Link>
+        <Link href="/dashboard/progress" className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 font-semibold text-slate-800 hover:bg-slate-100">學習歷程 <span className="mt-1 block text-xs font-normal text-slate-600">追蹤成績變化與各科表現</span></Link>
+        <Link href="/dashboard/practice/mistakes" className="rounded-xl border border-red-200 bg-red-50 px-5 py-4 font-semibold text-red-800 hover:bg-red-100">錯題分析 <span className="mt-1 block text-xs font-normal text-red-700">找出弱點、整理常錯觀念</span></Link>
       </div>
       <Link href="/dashboard/textbooks" className="mt-3 inline-flex text-sm font-medium text-blue-700 underline">教材版本設定</Link>
     </section>
