@@ -17,7 +17,7 @@ export async function signUp(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
   const displayName = String(formData.get("display_name") ?? "").trim();
-  if (!email || password.length < 10 || !displayName) redirect("/register?error=invalid");
+  if (!email || password.length < 6 || !displayName) redirect("/register?error=invalid");
   const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
     email, password,
