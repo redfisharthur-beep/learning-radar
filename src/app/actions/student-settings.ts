@@ -88,7 +88,7 @@ export async function saveStudentTextbookSelection(formData: FormData) {
       .maybeSingle(),
     supabase
       .from("textbook_editions")
-      .select("id, subject_id, academic_year, education_stage, grade")
+      .select("id, subject_id, academic_year, education_stage, grade, volume_no")
       .eq("id", editionId)
       .eq("subject_id", subjectId)
       .eq("academic_year", academicYear)
@@ -102,7 +102,8 @@ export async function saveStudentTextbookSelection(formData: FormData) {
   if (
     !edition ||
     edition.education_stage !== student.education_stage ||
-    edition.grade !== student.grade
+    edition.grade !== student.grade ||
+    edition.volume_no !== semester
   ) {
     redirect("/dashboard/textbooks?error=edition-mismatch");
   }
