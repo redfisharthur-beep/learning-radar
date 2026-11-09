@@ -1,6 +1,6 @@
 {
   "project": "Learning Radar",
-  "phase": "Phase 2 student profile and curriculum catalogue",
+  "phase": "Phase 2 - authenticated student profile and curriculum catalogue (pre-pilot)",
   "files": [
     ".env.example",
     ".github/ISSUE_TEMPLATE/bug_report.md",
@@ -13,6 +13,7 @@
     "scripts/import_moe_school_directory_115.sql",
     "src/app/actions/auth.ts",
     "src/app/actions/student-settings.ts",
+    "src/app/auth/callback/route.ts",
     "src/app/dashboard/page.tsx",
     "src/app/dashboard/profile/page.tsx",
     "src/app/dashboard/textbooks/page.tsx",
@@ -31,19 +32,24 @@
     "supabase/migrations/20261109060308_phase2_curriculum_catalog.sql",
     "supabase/migrations/20261109060706_seed_naer_115_textbook_editions.sql",
     "supabase/migrations/20261109060932_correct_grade9_social_approved_publishers.sql",
+    "supabase/migrations/20261109080737_tighten_public_table_grants.sql",
+    "supabase/migrations/20261109081145_tighten_public_default_privileges.sql",
     "tailwind.config.ts",
     "tsconfig.json"
   ],
   "notes": [
     "Supabase project learning-radar is active in Tokyo (ap-northeast-1).",
-    "Database migrations through 20261109060932 are applied and recorded in the remote migration history.",
+    "Seven database migrations have been applied to the remote project and are recorded in its migration history.",
     "115 academic-year Ministry of Education school directory imported: 2,609 elementary and 740 junior-high schools.",
     "238 active 115 academic-year NAER-approved textbook publisher/grade/subject/volume options seeded; Grade 9 Social Studies publisher options corrected against the official directory.",
-    "All 13 public tables have RLS enabled; latest Supabase security advisors report no security lints.",
-    "GitHub Actions passed npm ci, TypeScript typecheck, and Next.js production build; package-lock.json has been committed.",
-    "Supabase SSR and JS SDK direct dependency versions are pinned; Node.js 22 or later is required.",
-    "Publisher textbook contents, unit lists, and knowledge-point details still require verified/licensed source data.",
-    "Vercel project import, production environment variables, deployment, Supabase Auth production redirect URLs, and end-to-end registration tests remain outstanding.",
+    "All 13 public tables have RLS enabled. Anonymous role has no public table or sequence grants; authenticated role has minimum application grants, with RLS enforcing row ownership.",
+    "Default privileges for future public tables, sequences and functions created by postgres have been tightened.",
+    "GitHub Actions passed npm ci, TypeScript typecheck and Next.js production build on Node.js 26.",
+    "Vercel Production deployment is READY at https://learning-radar-wheat.vercel.app; Preview deployments remain SSO protected while Production is publicly accessible.",
+    "Signup email confirmation callback, differentiated login errors and resend-confirmation action are implemented. Real mailbox end-to-end verification remains untested.",
+    "supabase/config.toml contains production Site URL and redirect patterns. The hosted Supabase Dashboard Authentication URL Configuration must still be checked/set manually; changing config.toml does not update hosted Auth settings.",
+    "Supabase Security Advisor currently reports leaked-password protection disabled; this feature requires Pro or above.",
+    "Publisher textbook contents, unit lists and knowledge-point details still require verified/licensed source data; AI question generation and assessment analysis are not yet implemented.",
     "Minors' privacy notice and guardian consent workflow must be completed before public launch."
   ]
 }
