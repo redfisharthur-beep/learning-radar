@@ -32,7 +32,8 @@ with subject_publishers as (
     ('junior_high', 'chinese', 7, 9, array['nani','kang-hsuan','hanlin']::text[]),
     ('junior_high', 'english', 7, 9, array['joy','nani','kang-hsuan']::text[]),
     ('junior_high', 'math', 7, 9, array['nani','kang-hsuan','hanlin']::text[]),
-    ('junior_high', 'social', 7, 9, array['nani','nan-yi-publishing','kang-hsuan','hanlin']::text[]),
+    ('junior_high', 'social', 7, 8, array['nani','nan-yi-publishing','kang-hsuan','hanlin']::text[]),
+    ('junior_high', 'social', 9, 9, array['nani','kang-hsuan','hanlin']::text[]),
     ('junior_high', 'science', 7, 9, array['nani','kang-hsuan','hanlin']::text[])
   ) as v(education_stage, subject_id, min_grade, max_grade, publisher_slugs)
 ),
