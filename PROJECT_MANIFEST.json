@@ -40,9 +40,10 @@
     "115 academic-year Ministry of Education school directory imported: 2,609 elementary and 740 junior-high schools.",
     "238 active 115 academic-year NAER-approved textbook publisher/grade/subject/volume options seeded; Grade 9 Social Studies publisher options corrected against the official directory.",
     "All 13 public tables have RLS enabled; latest Supabase security advisors report no security lints.",
-    "GitHub Actions CI passed TypeScript typecheck and Next.js production build on 2026-11-09.",
+    "GitHub Actions passed npm ci, TypeScript typecheck, and Next.js production build; package-lock.json has been committed.",
+    "Supabase SSR and JS SDK direct dependency versions are pinned; Node.js 22 or later is required.",
     "Publisher textbook contents, unit lists, and knowledge-point details still require verified/licensed source data.",
-    "Vercel deployment, production Auth redirect URLs, and actual end-to-end registration tests remain outstanding.",
+    "Vercel project import, production environment variables, deployment, Supabase Auth production redirect URLs, and end-to-end registration tests remain outstanding.",
     "Minors' privacy notice and guardian consent workflow must be completed before public launch."
   ]
 }
