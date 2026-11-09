@@ -10,6 +10,7 @@ const errorMessages: Record<string, string> = {
   grade: "年級與學段不相符，請重新確認。",
   school: "找不到這所學校，或學校資料目前未啟用。",
   "school-stage": "所選學校的學段與學生年級不相符。",
+  "complete-profile": "請先完成學生學段與年級設定。",
   save: "資料儲存失敗，請稍後再試。",
 };
 
