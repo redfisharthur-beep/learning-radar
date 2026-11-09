@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { submitPracticeAttempt } from "@/app/actions/practice";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -22,8 +23,9 @@ export default async function PracticeSetPage({ params, searchParams }: Props) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  const admin = createAdminClient();
 
-  const { data: practiceSet } = await supabase
+  const { data: practiceSet } = await admin
     .from("practice_sets")
     .select("id, title, subject_id, grade, education_stage, semester, academic_year, scope_text, teacher_note, question_count, generation_source, school_name_snapshot, textbook_publisher_label, textbook_source_url, created_at")
     .eq("id", id)
@@ -43,7 +45,7 @@ export default async function PracticeSetPage({ params, searchParams }: Props) {
   } | null = null;
 
   if (query.result && query.retry !== "1") {
-    const { data } = await supabase
+    const { data } = await admin
       .from("practice_attempts")
       .select("id, answers, correct_count, total_count, score, completed_at")
       .eq("id", query.result)
@@ -53,7 +55,7 @@ export default async function PracticeSetPage({ params, searchParams }: Props) {
     attempt = data;
   }
 
-  const { data: questions } = await supabase
+  const { data: questions } = await admin
     .from("practice_questions")
     .select("id, sort_order, stem, options, correct_answer, explanation, concept, difficulty_level")
     .eq("practice_set_id", id)
