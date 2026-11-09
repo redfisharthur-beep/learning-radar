@@ -50,9 +50,9 @@
   ],
   "notes": [
     "Supabase project learning-radar is active in Tokyo (ap-northeast-1).",
-    "Nine database migrations have been applied to the remote project.",
+    "Eleven database migrations have been applied to the remote project.",
     "3,349 Ministry of Education school records and 238 active 115 AY NAER-approved textbook options have been seeded.",
-    "All 13 public tables have RLS enabled. anon has no public table or sequence grants; authenticated has minimum application grants, with RLS enforcing row ownership.",
+    "All 18 public tables have RLS enabled. anon has no public table or sequence grants; authenticated has minimum application grants, with RLS enforcing row ownership. Practice answer keys are server-only.",
     "Default privileges for future public tables, sequences and functions created by postgres have been tightened.",
     "Email/password signup and login are implemented without a verification-email workflow. Hosted Supabase Dashboard still requires Confirm Email to be disabled manually.",
     "When Confirm Email is disabled, signup returns a session; server action redirects directly to /dashboard. If no session is returned, the app reports that the hosted setting is still enabled.",
@@ -71,6 +71,8 @@
     "Practice question answer keys and attempt details are not granted to browser roles; server-only Supabase admin client performs the protected reads and writes after verifying the Supabase Auth user.",
     "AI generation endpoint uses the OpenAI Responses API with Structured Outputs, store=false, default model gpt-6-luna, and a per-user cap of 5 generated sets per rolling 24 hours.",
     "OpenAI API Key is not yet configured in Vercel Production. Add OPENAI_API_KEY as a server-side Production environment variable and redeploy to enable live model calls. OPENAI_MODEL is optional.",
-    "The first AI question release creates original multiple-choice practice questions only and uses the student's typed scope as the primary content source because publisher curriculum unit and knowledge-point tables are not yet populated."
+    "The first AI question release creates original multiple-choice practice questions only and uses the student's typed scope as the primary content source because publisher curriculum unit and knowledge-point tables are not yet populated.",
+    "The current Vercel Production environment has no OPENAI_API_KEY configured. The generation API returns OPENAI_NOT_CONFIGURED until the user adds the secret in Project Settings > Environment Variables and redeploys.",
+    "The quiz route only retrieves answer keys after an attempt has been submitted. Database privileges prevent browser access to practice_questions and practice_attempts; a private trigger recalculates scores from the answer key."
   ]
 }
