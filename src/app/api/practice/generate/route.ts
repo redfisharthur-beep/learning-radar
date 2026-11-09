@@ -5,14 +5,14 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 export const preferredRegion = "hnd1";
 
-const MODEL = process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash";
+const MODEL = process.env.GEMINI_MODEL?.trim() || "gemini-3.8-flash";
 
 export async function GET() {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   const base = {
     service: "learning-radar-practice-generation",
     provider: "google-gemini",
-    diagnosticVersion: "2026-11-09-gemini-1",
+    diagnosticVersion: "2026-11-09-gemini-3-8-2",
     model: MODEL,
     apiKeyConfigured: Boolean(apiKey),
     deploymentCommit: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
@@ -417,7 +417,6 @@ export async function POST(request: Request) {
             },
           ],
           generationConfig: {
-            temperature: 0.5,
             maxOutputTokens: questionCount === 10 ? 8192 : 4096,
             responseMimeType: "application/json",
             responseSchema: schema,
