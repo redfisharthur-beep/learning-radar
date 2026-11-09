@@ -3,23 +3,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-const siteUrl = () => {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL;
-  if (configured) return configured.replace(/\/$/, "");
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return "http://localhost:3000";
-};
-
-const emailRedirectTo = () => `${siteUrl()}/auth/callback?next=%2Fdashboard`;
-
-function emailDeliveryError(error: { code?: string; message: string }) {
-  const code = error.code ?? "";
-  const message = error.message.toLowerCase();
-  if (code === "over_email_send_rate_limit" || message.includes("email rate limit")) return "email-limit";
-  if (code === "email_address_not_authorized" || message.includes("email address not authorized")) return "email-not-authorized";
-  return null;
-}
-
 export async function signIn(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
@@ -35,7 +18,7 @@ export async function signIn(formData: FormData) {
 
   if (error) {
     if (error.code === "email_not_confirmed" || error.message.toLowerCase().includes("email not confirmed")) {
-      redirect("/login?error=unverified");
+      redirect("/login?error=confirmation-enabled");
     }
     redirect("/login?error=credentials");
   }
@@ -54,44 +37,29 @@ export async function signUp(formData: FormData) {
   if (password.length < 6) redirect("/register?error=password");
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: { display_name: displayName },
-      emailRedirectTo: emailRedirectTo(),
     },
   });
 
   if (error) {
-    const deliveryError = emailDeliveryError(error);
-    if (deliveryError) redirect(`/register?error=${deliveryError}`);
     if (error.message.toLowerCase().includes("already registered")) {
       redirect("/register?error=exists");
     }
     redirect("/register?error=signup");
   }
 
-  redirect("/login?message=check-email");
-}
-
-export async function resendSignupConfirmation(formData: FormData) {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  if (!email) redirect("/login?error=resend-email");
-
-  const supabase = await createClient();
-  const { error } = await supabase.auth.resend({
-    type: "signup",
-    email,
-    options: { emailRedirectTo: emailRedirectTo() },
-  });
-
-  if (error) {
-    const deliveryError = emailDeliveryError(error);
-    if (deliveryError) redirect(`/login?error=${deliveryError}`);
-    redirect("/login?error=resend-failed");
+  // With Supabase Auth "Confirm Email" disabled, signUp returns a session.
+  // Do not claim signup is complete if the hosted Auth setting is still enabled.
+  if (!data.session) {
+    redirect("/register?error=confirmation-enabled");
   }
-  redirect("/login?message=verification-sent");
+
+  // @supabase/ssr writes the new session into cookies through createClient().
+  redirect("/dashboard");
 }
 
 export async function signOut() {
