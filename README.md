@@ -6,11 +6,9 @@
 
 - Production URL：https://learning-radar-wheat.vercel.app
 - Vercel 專案：learning-radar
-- Production 部署已成功；目前 Vercel SSO 僅保護 Preview，正式 Production 網址可由一般訪客開啟。
+- Production 部署使用 Vercel Production；Preview 部署保留 SSO 保護。
 - Node.js：26.x；GitHub Actions 使用相同版本。
-- GitHub Actions 已通過 npm ci、TypeScript typecheck、Next.js production build。
-- Production 的首頁、登入頁、註冊頁已以 HTTP 200 實際檢查。
-- 尚未完成真實信箱的端到端註冊／驗證／登入測試。
+- GitHub Actions 執行 npm ci、TypeScript typecheck 與 Next.js production build。
 
 ## Supabase 專案
 
@@ -20,24 +18,33 @@
 - 前端使用 `NEXT_PUBLIC_SUPABASE_URL` 與 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`。
 - 不可將 Supabase Secret Key 或 Service Role Key 放入任何 `NEXT_PUBLIC_*` 變數。
 
-### Supabase Auth 上線設定（尚需在託管專案確認）
+## 登入方式（免電子郵件驗證）
 
-請在 Supabase Dashboard 的 Authentication → URL Configuration 設定：
+- 帳號：電子郵件格式的帳號識別字；不要求使用者收信或點擊驗證連結。
+- 密碼：至少 6 個字元。
+- 註冊後直接建立 Supabase Auth Session 並進入 Dashboard。
+- 登入使用 Email + Password。
+- LINE Login 尚未整合；目前先以免驗證的 Email + Password 測試流程為主。
 
-- Site URL：`https://learning-radar-wheat.vercel.app`
-- Additional Redirect URLs：`https://learning-radar-wheat.vercel.app/**`
-- 本機開發可保留：`http://localhost:3000/**`
+### 必須在 Supabase Hosted Dashboard 關閉 Confirm Email
 
-Repository 的 `supabase/config.toml` 已記錄上述設定，但修改該檔案本身不會自動更新 Supabase 託管專案的 Dashboard 設定。請在第一次真實註冊測試前，確認遠端設定已套用。
+目前程式已按「免電子郵件驗證」方式實作，但 Hosted Supabase 專案仍必須在 Dashboard 手動關閉：
 
-Vercel Production 環境已設定 `NEXT_PUBLIC_SITE_URL`、`NEXT_PUBLIC_SUPABASE_URL`、`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`。
+1. 開啟 Supabase 專案。
+2. 進入 Authentication → Sign In / Providers。
+3. 展開 Email provider。
+4. 關閉 **Confirm email**，儲存變更。
+
+專案設定直達頁：https://supabase.com/dashboard/project/znyxrlgurvvjwyrxepqv/auth/providers
+
+官方文件確認：Hosted 專案預設要求 Email Confirmation；關閉後，註冊會直接回傳 session，並將電子郵件視為已確認。這同時代表任何人都可以用非本人持有的電子郵件字串註冊；測試階段可接受，正式對外開放前必須重新評估垃圾註冊、帳號冒用、密碼重設與兒少保護風險。
+
+`supabase/config.toml` 已加入 `[auth.email] enable_confirmations = false`，供本機 Supabase 開發環境使用。修改此檔案本身不會自動更新 Hosted Dashboard 的設定。
 
 ## 目前已實作功能
 
-- Email／Password 註冊、登入、登出。
-- Supabase Email Confirmation PKCE callback（`/auth/callback`）。
-- 未驗證帳號登入時顯示明確訊息。
-- 重新寄送註冊驗證信。
+- Email／Password 註冊、登入、登出（免 Email Confirmation）。
+- 註冊成功後取得 Session 並進入 Dashboard；若 Hosted Auth 仍要求驗證，會顯示明確錯誤。
 - 學生首頁與受保護的 Dashboard。
 - 學生基本資料設定：顯示名稱、學段、年級、學校搜尋與選擇（`/dashboard/profile`）。
 - 教材版本選擇介面（`/dashboard/textbooks`）：依學段、年級、科目、學年度與冊次篩選。
@@ -67,8 +74,9 @@ Vercel Production 環境已設定 `NEXT_PUBLIC_SITE_URL`、`NEXT_PUBLIC_SUPABASE
 - `anon` 不具備 public 資料表或序列權限。
 - `authenticated` 僅保留應用程式需要的最小資料表權限；行資料存取再由 RLS 控制。
 - 已收緊 postgres migration owner 的預設權限，未來新建 public 資料表、序列與函式不會自動授權給 anon／authenticated。
-- Supabase Security Advisor 目前仍提示 Leaked Password Protection 未啟用。這項功能需 Pro 以上方案；目前 Free 方案尚無法開啟。
-- 6 個字元為目前應用程式與 Supabase Auth 的最低密碼長度；建議使用者採用更長且不重複的密碼。
+- 目前密碼最低長度為 6；建議使用不重複且更長的密碼。
+- 關閉 Email Confirmation 會讓使用者以未經驗證的電子郵件字串建立帳號，忘記密碼時無法假設使用者能收到重設信；測試階段請記錄好測試帳號與密碼。
+- Supabase Security Advisor 目前仍提示 Leaked Password Protection 未啟用；這項功能需 Pro 以上方案，Free 方案無法開啟。
 
 ## Migration
 
@@ -87,16 +95,16 @@ Vercel Production 環境已設定 `NEXT_PUBLIC_SITE_URL`、`NEXT_PUBLIC_SUPABASE
 1. `npm install`
 2. 複製 `.env.example` 為 `.env.local`
 3. 設定 `NEXT_PUBLIC_SUPABASE_URL` 與 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-4. 正式信箱導回測試前，依前述章節設定 Supabase Auth Site URL／Redirect URLs。
-5. `npm run dev`
+4. `npm run dev`
 
 ## 尚待完成（產品功能）
 
-- 真實電子郵件註冊、驗證、重新寄送與登入端到端測試。
+- 關閉 Hosted Supabase 的 Confirm Email 並完成一次真實註冊／登入端到端測試。
 - 學生資料、學校搜尋、五科教材選擇的登入後儲存測試。
 - 各出版社教材單元、知識點及題目內容的官方／授權資料建檔。
 - 題庫、AI 出題與答案驗證、段考範圍媒合、測驗作答及學習分析。
 - 對外開放前完成兒少隱私告知、必要的家長／監護人同意流程與服務條款。
+- 正式營運前重新評估免驗證 Email 註冊的濫用風險與帳號復原方案。
 
 ## 安全注意
 
