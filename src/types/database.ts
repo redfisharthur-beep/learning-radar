@@ -727,6 +727,7 @@ export type Database = {
           academic_year: number
           created_at: string
           id: string
+          is_manual_override: boolean
           semester: number
           subject_id: string
           textbook_edition_id: string
@@ -737,6 +738,7 @@ export type Database = {
           academic_year: number
           created_at?: string
           id?: string
+          is_manual_override?: boolean
           semester: number
           subject_id: string
           textbook_edition_id: string
@@ -747,6 +749,7 @@ export type Database = {
           academic_year?: number
           created_at?: string
           id?: string
+          is_manual_override?: boolean
           semester?: number
           subject_id?: string
           textbook_edition_id?: string
