@@ -90,6 +90,7 @@
 - AIMii（EduBaania）查詢入口：https://school.edubaania.com/textbooks/
 - OneClass 頁面定位為審定本使用版本查詢；AIMii 說明資料彙整自出版社公開資訊並交叉核對。兩者作為第二來源，不取代學校公告。
 - 已建立 `school_textbook_adoption_evidence` 保存官方公告及第二來源的查核軌跡。
+- 已匯入彰化縣立秀水國中 115 學年度七年級五科（國文、英文、數學、自然、社會）第 1、2 學期共 10 筆學校採用版本及 10 筆官方公告證據；教材公告優先於舊的個人選擇，使用者仍可明確手動覆寫。
 - 目前完成 1 所學校 115 學年度 30 筆年級／科目／學期資料；全台覆蓋率尚未完成，未有資料時不會自行推測。
 - 英文資料名稱對應範例：安平國中公告稱「翰林」，115 學年度英語審定清冊的出版者欄為「佳音」；第三方英文版本整理明確說明佳音對應翰林版。系統保留學校原始標籤，同時指向佳音審定教材。
 ## 資料庫安全
@@ -122,6 +123,7 @@
 13. `supabase/migrations/20261109153000_record_practice_answers_after_attempt_insert.sql`
 14. `supabase/migrations/20261109160000_allow_variable_question_count_for_mistake_reviews.sql`
 15. `supabase/migrations/20261109163000_fix_practice_answer_validation_jsonb_count.sql`
+16. `supabase/migrations/20261109112049_school_adoptions_and_manual_override.sql`
 
 
 ## AI 出題設定與啟用
