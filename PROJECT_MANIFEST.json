@@ -4,6 +4,7 @@
   "files": [
     ".env.example",
     ".github/ISSUE_TEMPLATE/bug_report.md",
+    ".github/workflows/ci.yml",
     ".gitignore",
     "README.md",
     "next.config.ts",
@@ -29,16 +30,18 @@
     "supabase/migrations/20261109054953_index_student_profile_school_fk.sql",
     "supabase/migrations/20261109060308_phase2_curriculum_catalog.sql",
     "supabase/migrations/20261109060706_seed_naer_115_textbook_editions.sql",
+    "supabase/migrations/20261109060932_correct_grade9_social_approved_publishers.sql",
     "tailwind.config.ts",
     "tsconfig.json"
   ],
   "notes": [
     "Supabase project learning-radar is active in Tokyo (ap-northeast-1).",
-    "Database migrations through 20261109060706 are applied and recorded in the remote migration history.",
+    "Database migrations through 20261109060932 are applied and recorded in the remote migration history.",
     "115 academic-year Ministry of Education school directory imported: 2,609 elementary and 740 junior-high schools.",
-    "115 academic-year NAER approved publisher options seeded for five core subjects, grade, and semester volume; school adoption remains student-selected.",
+    "238 active 115 academic-year NAER-approved textbook publisher/grade/subject/volume options seeded; Grade 9 Social Studies publisher options were corrected against the official directory.",
     "All public tables have RLS enabled; latest Supabase security advisors report no security lints.",
     "Publisher textbook contents, unit lists, and knowledge-point details still require verified/licensed source data.",
+    "GitHub Actions CI workflow created; no completed workflow run has been verified yet.",
     "Vercel deployment, production Auth redirect URLs, and actual end-to-end registration tests remain outstanding.",
     "Minors' privacy notice and guardian consent workflow must be completed before public launch."
   ]
