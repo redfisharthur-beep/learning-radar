@@ -117,6 +117,7 @@ export async function saveStudentTextbookSelection(formData: FormData) {
         textbook_edition_id: editionId,
         academic_year: academicYear,
         semester,
+        is_manual_override: true,
       },
       { onConflict: "user_id,subject_id,academic_year,semester" }
     );
