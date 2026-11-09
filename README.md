@@ -45,6 +45,9 @@
 3. 設定 NEXT_PUBLIC_SUPABASE_URL 與 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 4. npm run dev
 
+## 程式檢查
+- GitHub Actions 已通過 TypeScript 型別檢查與 Next.js production build（2026-11-09）。
+
 ## 尚待完成
 - Vercel 專案部署與正式環境變數。
 - Supabase Auth 正式 Site URL／Redirect URLs。
