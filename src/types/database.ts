@@ -303,6 +303,7 @@ export type Database = {
           scope_text: string
           semester: number
           subject_id: string
+          teacher_note: string
           textbook_edition_id: string | null
           textbook_publisher_label: string | null
           textbook_source_url: string | null
@@ -326,6 +327,7 @@ export type Database = {
           scope_text: string
           semester: number
           subject_id: string
+          teacher_note?: string
           textbook_edition_id?: string | null
           textbook_publisher_label?: string | null
           textbook_source_url?: string | null
@@ -349,6 +351,7 @@ export type Database = {
           scope_text?: string
           semester?: number
           subject_id?: string
+          teacher_note?: string
           textbook_edition_id?: string | null
           textbook_publisher_label?: string | null
           textbook_source_url?: string | null
