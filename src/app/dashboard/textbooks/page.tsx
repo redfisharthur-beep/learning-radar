@@ -87,7 +87,7 @@ export default async function TextbookSettingsPage({ searchParams }: { searchPar
           <section className="mt-8 rounded-2xl bg-slate-900 p-5 text-white">
             <p className="text-sm text-slate-300">目前設定對象</p>
             <h2 className="mt-1 text-xl font-semibold">
-              {student.education_stage === "elementary" ? "國小" : "國中"} {student.education_stage === "elementary" ? student.grade : student.grade - 6} 年級
+              {student.education_stage === "elementary" ? `國小 ${student.grade} 年級` : `${student.grade} 年級`}
             </h2>
             <p className="mt-2 text-sm text-slate-300">{academicYear} 學年度第 {semester} 學期</p>
           </section>
