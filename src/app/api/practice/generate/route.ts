@@ -8,16 +8,78 @@ export const preferredRegion = "hnd1";
 const MODEL = process.env.OPENAI_MODEL?.trim() || "gpt-6-luna";
 
 export async function GET() {
-  return Response.json(
-    {
-      service: "learning-radar-practice-generation",
-      diagnosticVersion: "2026-11-09-2",
-      model: MODEL,
-      apiKeyConfigured: Boolean(process.env.OPENAI_API_KEY?.trim()),
-      deploymentCommit: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
-    },
-    { headers: { "Cache-Control": "no-store, max-age=0" } }
-  );
+  const apiKey = process.env.OPENAI_API_KEY?.trim();
+  const base = {
+    service: "learning-radar-practice-generation",
+    diagnosticVersion: "2026-11-09-3",
+    model: MODEL,
+    apiKeyConfigured: Boolean(apiKey),
+    deploymentCommit: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
+  };
+
+  if (!apiKey) {
+    return Response.json(
+      { ...base, openaiConnection: "not_checked", diagnosis: "OPENAI_KEY_MISSING" },
+      { headers: { "Cache-Control": "no-store, max-age=0" }, status: 503 }
+    );
+  }
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/models", {
+      method: "GET",
+      headers: { Authorization: "Bearer " + apiKey },
+      cache: "no-store",
+      signal: AbortSignal.timeout(8000),
+    });
+    const data = await response.json().catch(() => ({})) as Record<string, unknown>;
+    const error = data.error && typeof data.error === "object"
+      ? data.error as Record<string, unknown>
+      : {};
+    const models = Array.isArray(data.data) ? data.data : [];
+    const modelAvailable = response.ok && models.some((item) =>
+      item && typeof item === "object" && (item as Record<string, unknown>).id === MODEL
+    );
+
+    return Response.json(
+      {
+        ...base,
+        openaiConnection: response.ok ? "connected" : "api_rejected",
+        openaiHttpStatus: response.status,
+        openaiErrorType: typeof error.type === "string" ? error.type : null,
+        openaiErrorCode: typeof error.code === "string" ? error.code : null,
+        modelListed: modelAvailable,
+        diagnosis: response.status === 401
+          ? "OPENAI_KEY_INVALID"
+          : response.status === 403
+            ? "OPENAI_PERMISSION_OR_BILLING"
+            : response.status === 429
+              ? "OPENAI_RATE_OR_QUOTA"
+              : !response.ok
+                ? "OPENAI_API_REJECTED"
+                : modelAvailable
+                  ? "OPENAI_READY"
+                  : "MODEL_NOT_LISTED",
+      },
+      { headers: { "Cache-Control": "no-store, max-age=0" } },
+      );
+  } catch (error) {
+    const err = error instanceof Error ? error : new Error("Unknown fetch error");
+    const cause = err.cause && typeof err.cause === "object"
+      ? err.cause as Record<string, unknown>
+      : {};
+    return Response.json(
+      {
+        ...base,
+        openaiConnection: "failed",
+        errorName: err.name,
+        errorCode: typeof cause.code === "string" ? cause.code : null,
+        diagnosis: err.name === "TimeoutError" || err.name === "AbortError"
+          ? "OPENAI_HEALTH_CHECK_TIMEOUT"
+          : "OPENAI_NETWORK_OR_TLS_ERROR",
+      },
+      { headers: { "Cache-Control": "no-store, max-age=0" }, status: 502 }
+    );
+  }
 }
 const SUBJECT_IDS = ["chinese", "english", "math", "science", "social"] as const;
 const ANSWERS = ["A", "B", "C", "D"] as const;
