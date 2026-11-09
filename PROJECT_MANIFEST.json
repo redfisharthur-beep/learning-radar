@@ -28,16 +28,18 @@
     "supabase/migrations/20261109054935_initial_learning_radar_schema.sql",
     "supabase/migrations/20261109054953_index_student_profile_school_fk.sql",
     "supabase/migrations/20261109060308_phase2_curriculum_catalog.sql",
+    "supabase/migrations/20261109060706_seed_naer_115_textbook_editions.sql",
     "tailwind.config.ts",
     "tsconfig.json"
   ],
   "notes": [
     "Supabase project learning-radar is active in Tokyo (ap-northeast-1).",
-    "Database migrations through 20261109060308 are applied and recorded in the remote migration history.",
+    "Database migrations through 20261109060706 are applied and recorded in the remote migration history.",
     "115 academic-year Ministry of Education school directory imported: 2,609 elementary and 740 junior-high schools.",
-    "All public tables have RLS enabled; Supabase security advisors currently report no security lints.",
-    "Publishers are seeded, but textbook editions, unit contents, and knowledge points still require verified source data.",
-    "Vercel environment variables and production Auth redirect URLs remain to be configured and tested.",
+    "115 academic-year NAER approved publisher options seeded for five core subjects, grade, and semester volume; school adoption remains student-selected.",
+    "All public tables have RLS enabled; latest Supabase security advisors report no security lints.",
+    "Publisher textbook contents, unit lists, and knowledge-point details still require verified/licensed source data.",
+    "Vercel deployment, production Auth redirect URLs, and actual end-to-end registration tests remain outstanding.",
     "Minors' privacy notice and guardian consent workflow must be completed before public launch."
   ]
 }
