@@ -59,7 +59,7 @@
 - AI 智慧出題（`/dashboard/practice/new`）：依學生年級、五科、學期、使用者輸入的段考範圍，產生 5 或 10 題四選一原創練習題。
 - 支援基礎／進階／挑戰／混合難度；每題包含正確答案、觀念標籤與逐題解析。
 - 完成作答後自動批改、計算分數、保存作答紀錄；可查看個人題本歷史（`/dashboard/practice`）。
-- AI 透過 OpenAI Responses API + Structured Outputs 產生結構化題目；使用 `gpt-6-luna` 作為預設模型，伺服器端使用 `OPENAI_API_KEY`，不會把金鑰送到瀏覽器。
+- AI 透過 Google Gemini `generateContent` + JSON Schema 結構化輸出產生題目；預設模型 `gemini-2.5-flash`，伺服器端使用 `GEMINI_API_KEY`，不會把金鑰送到瀏覽器。
 - 每個帳號每 24 小時最多產生 5 份題本；每份可選 5 或 10 題。
 - 題目為 AI 原創練習題，不宣稱為歷屆試題；教材目錄尚未匯入時，以學生指定範圍為準，不虛構課本單元。
 - 正確答案與逐題解析只由伺服器讀取；資料庫限制瀏覽器無法直接讀取 `practice_questions` 與 `practice_attempts`，並由 Postgres trigger 重新計算分數。
@@ -102,7 +102,7 @@
 - 目前密碼最低長度為 6；建議使用不重複且更長的密碼。
 - 關閉 Email Confirmation 會讓使用者以未經驗證的電子郵件字串建立帳號，忘記密碼時無法假設使用者能收到重設信；測試階段請記錄好測試帳號與密碼。
 - Supabase Security Advisor 目前仍提示 Leaked Password Protection 未啟用；這項功能需 Pro 以上方案，Free 方案無法開啟。
-- AI 出題使用 `SUPABASE_SERVICE_ROLE_KEY`（僅伺服器）讀寫答案資料；不可新增 `NEXT_PUBLIC_OPENAI_API_KEY` 或把 Supabase Secret Key 暴露到瀏覽器。
+- AI 出題透過 `GEMINI_API_KEY` 呼叫 Google Gemini；`SUPABASE_SERVICE_ROLE_KEY` 僅由伺服器讀寫題目與答案資料。不可新增 `NEXT_PUBLIC_GEMINI_API_KEY` 或把任何 Secret Key 暴露到瀏覽器。
 
 ## Migration
 
@@ -128,9 +128,9 @@
 
 ## AI 出題設定與啟用
 
-- Vercel 專案需在 Settings → Environment Variables 新增 `OPENAI_API_KEY`，環境選 Production；請勿把金鑰貼在聊天訊息、GitHub 或任何 `NEXT_PUBLIC_*` 變數。
-- 可選擇設定 `OPENAI_MODEL`；未設定時預設使用 `gpt-6-luna`。
-- 儲存環境變數後，重新部署 Production，AI 出題 API 才能真正呼叫模型。
+- Vercel 專案需在 Settings → Environment Variables 新增 `GEMINI_API_KEY`，環境選 Production；請勿把金鑰貼在聊天訊息、GitHub 或任何 `NEXT_PUBLIC_*` 變數。請從 Google AI Studio 建立新的 Authorization API Key。
+- 可選擇設定 `GEMINI_MODEL`；未設定時預設使用 `gemini-2.5-flash`。
+- Gemini 免費方案有模型、速率及每日用量限制；可在 Google AI Studio 的 Usage & Limits 查看。免費方案的提示內容可能用於改善 Google 產品，因此提示不傳學生姓名與學校識別資訊。儲存環境變數後，重新部署 Production。
 - 尚未設定金鑰時，出題頁會顯示明確的啟用提示，不會產生假題或假裝成功。
 - 每次模型呼叫都會保存模型名稱與 token 使用量，供後續成本監控；實際費用依 OpenAI API 當期價格和 token 用量計算。
 - 學習歷程（`/dashboard/progress`）：最近 90 天完成練習次數、總作答量、平均得分、整體答對率、近 7 日活動、最近 10 次成績走勢、各科表現與練習紀錄。
@@ -151,7 +151,7 @@
 - 關閉 Hosted Supabase 的 Confirm Email 並完成一次真實註冊／登入端到端測試。
 - 學生資料、學校搜尋、五科教材選擇的登入後儲存測試。
 - 各出版社教材單元、知識點及題目內容的官方／授權資料建檔。
-- AI 出題、學習歷程及錯題分析第一版已完成；待設定 OpenAI API Key 後，進行真實模型呼叫、跨科出題品質與成本測試。
+- AI 出題已切換 Google Gemini API；設定 Gemini API Key 後，需進行真實模型呼叫、跨科出題品質與免費額度測試。
 - 後續擴充題型（非選擇題、素養題、圖表題）、教材單元精準媒合、錯題分析與個人化複習。
 - 對外開放前完成兒少隱私告知、必要的家長／監護人同意流程與服務條款。
 - 正式營運前重新評估免驗證 Email 註冊的濫用風險與帳號復原方案。
