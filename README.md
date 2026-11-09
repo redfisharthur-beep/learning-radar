@@ -121,6 +121,7 @@
 12. `supabase/migrations/20261109150000_secure_learning_progress_and_wrong_answer_analytics.sql`
 13. `supabase/migrations/20261109153000_record_practice_answers_after_attempt_insert.sql`
 14. `supabase/migrations/20261109160000_allow_variable_question_count_for_mistake_reviews.sql`
+15. `supabase/migrations/20261109163000_fix_practice_answer_validation_jsonb_count.sql`
 
 
 ## AI 出題設定與啟用
