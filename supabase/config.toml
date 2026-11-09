@@ -11,5 +11,8 @@ major_version = 15
 
 [auth]
 enabled = true
-site_url = "http://localhost:3000"
-additional_redirect_urls = ["http://localhost:3000/**"]
+site_url = "https://learning-radar-wheat.vercel.app"
+additional_redirect_urls = [
+  "http://localhost:3000/**",
+  "https://learning-radar-wheat.vercel.app/**"
+]
