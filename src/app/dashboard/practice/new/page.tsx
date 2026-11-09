@@ -3,7 +3,10 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import NewPracticeForm from "@/components/practice/NewPracticeForm";
 
-export default async function NewPracticePage() {
+type SearchParams = Promise<{ subject?: string }>;
+
+export default async function NewPracticePage({ searchParams }: { searchParams: SearchParams }) {
+  const query = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -43,7 +46,11 @@ export default async function NewPracticePage() {
         <p className="mt-2 leading-7 text-slate-600">設定科目與段考範圍，AI 會產生適合目前年級的選擇題，完成後立即批改並提供解析。</p>
       </header>
       <section className="mt-8 rounded-2xl border bg-white p-6 shadow-sm">
-        <NewPracticeForm subjects={(subjects ?? []).map((item) => ({ id: item.id, name: item.name }))} studentLabel={studentLabel} />
+        <NewPracticeForm
+          subjects={(subjects ?? []).map((item) => ({ id: item.id, name: item.name }))}
+          studentLabel={studentLabel}
+          defaultSubject={(subjects ?? []).some((item) => item.id === query.subject) ? query.subject : undefined}
+        />
       </section>
     </main>
   );
