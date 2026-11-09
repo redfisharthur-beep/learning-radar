@@ -1,6 +1,6 @@
 {
   "project": "Learning Radar",
-  "phase": "Phase 1 foundation",
+  "phase": "Phase 2 student profile and curriculum catalogue",
   "files": [
     ".env.example",
     ".github/ISSUE_TEMPLATE/bug_report.md",
@@ -9,8 +9,12 @@
     "next.config.ts",
     "package.json",
     "postcss.config.mjs",
+    "scripts/import_moe_school_directory_115.sql",
     "src/app/actions/auth.ts",
+    "src/app/actions/student-settings.ts",
     "src/app/dashboard/page.tsx",
+    "src/app/dashboard/profile/page.tsx",
+    "src/app/dashboard/textbooks/page.tsx",
     "src/app/globals.css",
     "src/app/layout.tsx",
     "src/app/login/page.tsx",
@@ -21,16 +25,19 @@
     "src/middleware.ts",
     "src/types/database.ts",
     "supabase/config.toml",
-    "supabase/migrations/0001_initial_schema.sql",
-    "supabase/migrations/0002_index_student_profile_school_fk.sql",
+    "supabase/migrations/20261109054935_initial_learning_radar_schema.sql",
+    "supabase/migrations/20261109054953_index_student_profile_school_fk.sql",
+    "supabase/migrations/20261109060308_phase2_curriculum_catalog.sql",
     "tailwind.config.ts",
     "tsconfig.json"
   ],
   "notes": [
     "Supabase project learning-radar is active in Tokyo (ap-northeast-1).",
-    "Initial schema and school foreign-key index migrations have been applied to the Tokyo project.",
-    "Project uses NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY for browser-safe access with RLS.",
-    "Production Auth redirect URLs and Vercel environment variables remain to be configured and tested.",
+    "Database migrations through 20261109060308 are applied and recorded in the remote migration history.",
+    "115 academic-year Ministry of Education school directory imported: 2,609 elementary and 740 junior-high schools.",
+    "All public tables have RLS enabled; Supabase security advisors currently report no security lints.",
+    "Publishers are seeded, but textbook editions, unit contents, and knowledge points still require verified source data.",
+    "Vercel environment variables and production Auth redirect URLs remain to be configured and tested.",
     "Minors' privacy notice and guardian consent workflow must be completed before public launch."
   ]
 }
