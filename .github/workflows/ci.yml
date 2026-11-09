@@ -21,8 +21,19 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
+      - name: Generate reproducible npm lockfile
+        run: npm install --package-lock-only --no-audit --no-fund
+
+      - name: Upload npm lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: learning-radar-package-lock
+          path: package-lock.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
 
       - name: Type check
         run: npm run typecheck
