@@ -32,7 +32,11 @@ export default async function PracticeHistoryPage({ searchParams }: { searchPara
           <h1 className="mt-2 text-3xl font-bold">AI 練習題本</h1>
           <p className="mt-2 text-slate-600">每份題本都會保存，方便複習與查看作答解析。</p>
         </div>
-        <Link href="/dashboard/practice/new" className="rounded-xl bg-blue-700 px-5 py-3 font-semibold text-white hover:bg-blue-800">＋ 產生新題本</Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/dashboard/progress" className="rounded-xl border bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">學習歷程</Link>
+          <Link href="/dashboard/practice/mistakes" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800 hover:bg-red-100">錯題分析</Link>
+          <Link href="/dashboard/practice/new" className="rounded-xl bg-blue-700 px-5 py-3 font-semibold text-white hover:bg-blue-800">＋ 產生新題本</Link>
+        </div>
       </header>
 
       {params.error && (
