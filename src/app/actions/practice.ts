@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const VALID_ANSWERS = ["A", "B", "C", "D"];
 
@@ -14,15 +15,16 @@ export async function submitPracticeAttempt(formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+  const admin = createAdminClient();
 
   const [{ data: practiceSet }, { data: questions }] = await Promise.all([
-    supabase
+    admin
       .from("practice_sets")
       .select("id")
       .eq("id", setId)
       .eq("user_id", user.id)
       .maybeSingle(),
-    supabase
+    admin
       .from("practice_questions")
       .select("id, correct_answer")
       .eq("practice_set_id", setId)
@@ -44,7 +46,7 @@ export async function submitPracticeAttempt(formData: FormData) {
   }
 
   const score = Number(((correctCount / questions.length) * 100).toFixed(2));
-  const { data: attempt, error } = await supabase
+  const { data: attempt, error } = await admin
     .from("practice_attempts")
     .insert({
       practice_set_id: setId,
