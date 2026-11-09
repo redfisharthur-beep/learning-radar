@@ -12,6 +12,14 @@ const siteUrl = () => {
 
 const emailRedirectTo = () => `${siteUrl()}/auth/callback?next=%2Fdashboard`;
 
+function emailDeliveryError(error: { code?: string; message: string }) {
+  const code = error.code ?? "";
+  const message = error.message.toLowerCase();
+  if (code === "over_email_send_rate_limit" || message.includes("email rate limit")) return "email-limit";
+  if (code === "email_address_not_authorized" || message.includes("email address not authorized")) return "email-not-authorized";
+  return null;
+}
+
 export async function signIn(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
@@ -56,6 +64,8 @@ export async function signUp(formData: FormData) {
   });
 
   if (error) {
+    const deliveryError = emailDeliveryError(error);
+    if (deliveryError) redirect(`/register?error=${deliveryError}`);
     if (error.message.toLowerCase().includes("already registered")) {
       redirect("/register?error=exists");
     }
@@ -76,7 +86,11 @@ export async function resendSignupConfirmation(formData: FormData) {
     options: { emailRedirectTo: emailRedirectTo() },
   });
 
-  if (error) redirect("/login?error=resend-failed");
+  if (error) {
+    const deliveryError = emailDeliveryError(error);
+    if (deliveryError) redirect(`/login?error=${deliveryError}`);
+    redirect("/login?error=resend-failed");
+  }
   redirect("/login?message=verification-sent");
 }
 
