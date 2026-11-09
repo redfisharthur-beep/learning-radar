@@ -184,6 +184,81 @@ export type Database = {
         }
         Relationships: []
       }
+      practice_attempt_answers: {
+        Row: {
+          attempt_id: string
+          concept: string
+          correct_answer: string
+          is_correct: boolean
+          practice_set_id: string
+          question_id: string
+          recorded_at: string
+          selected_answer: string
+          subject_id: string
+          user_id: string
+        }
+        Insert: {
+          attempt_id: string
+          concept: string
+          correct_answer: string
+          is_correct: boolean
+          practice_set_id: string
+          question_id: string
+          recorded_at?: string
+          selected_answer: string
+          subject_id: string
+          user_id: string
+        }
+        Update: {
+          attempt_id?: string
+          concept?: string
+          correct_answer?: string
+          is_correct?: boolean
+          practice_set_id?: string
+          question_id?: string
+          recorded_at?: string
+          selected_answer?: string
+          subject_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practice_attempt_answers_attempt_id_fkey"
+            columns: ["attempt_id"]
+            isOneToOne: false
+            referencedRelation: "practice_attempts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practice_attempt_answers_practice_set_id_fkey"
+            columns: ["practice_set_id"]
+            isOneToOne: false
+            referencedRelation: "practice_sets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practice_attempt_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "practice_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practice_attempt_answers_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practice_attempt_answers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       practice_attempts: {
         Row: {
           answers: Json
