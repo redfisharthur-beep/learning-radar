@@ -118,6 +118,9 @@
 9. `supabase/migrations/20261109110000_preserve_school_publisher_labels_and_evidence.sql`
 10. `supabase/migrations/20261109130000_add_ai_practice_question_workflow.sql`
 11. `supabase/migrations/20261109140000_secure_practice_answer_access_and_scoring.sql`
+12. `supabase/migrations/20261109150000_secure_learning_progress_and_wrong_answer_analytics.sql`
+13. `supabase/migrations/20261109153000_record_practice_answers_after_attempt_insert.sql`
+14. `supabase/migrations/20261109160000_allow_variable_question_count_for_mistake_reviews.sql`
 
 
 ## AI 出題設定與啟用
@@ -127,6 +130,10 @@
 - 儲存環境變數後，重新部署 Production，AI 出題 API 才能真正呼叫模型。
 - 尚未設定金鑰時，出題頁會顯示明確的啟用提示，不會產生假題或假裝成功。
 - 每次模型呼叫都會保存模型名稱與 token 使用量，供後續成本監控；實際費用依 OpenAI API 當期價格和 token 用量計算。
+- 學習歷程（`/dashboard/progress`）：最近 90 天完成練習次數、總作答量、平均得分、整體答對率、近 7 日活動、最近 10 次成績走勢、各科表現與練習紀錄。
+- 錯題分析（`/dashboard/practice/mistakes`）：依科目與知識觀念統計答題次數、錯誤次數、答對率、重複答錯觀念，並可回到原題解析。
+- 每次作答由資料庫 trigger 自動寫入 `practice_attempt_answers` 逐題資料，保存當時選項、正確答案、是否答對、科目、觀念與時間；此表啟用 RLS 且瀏覽器角色沒有讀取權限，僅伺服器可取用。
+- 支援依科目建立錯題再挑戰題本：從該科最近答錯的題目中去重，重新整理最多 10 題，重做後可繼續累積新的學習歷程。這類題本標記為 `mistake_review`，不會冒充新的 AI 生成題。
 - API 使用 Structured Outputs 限定題本格式，並由伺服器檢查題數、選項、正確答案欄位與格式。
 
 ## 本機啟動
@@ -141,7 +148,7 @@
 - 關閉 Hosted Supabase 的 Confirm Email 並完成一次真實註冊／登入端到端測試。
 - 學生資料、學校搜尋、五科教材選擇的登入後儲存測試。
 - 各出版社教材單元、知識點及題目內容的官方／授權資料建檔。
-- AI 出題目前已完成第一版；待設定 OpenAI API Key 後，進行真實模型呼叫、跨科出題品質與成本測試。
+- AI 出題、學習歷程及錯題分析第一版已完成；待設定 OpenAI API Key 後，進行真實模型呼叫、跨科出題品質與成本測試。
 - 後續擴充題型（非選擇題、素養題、圖表題）、教材單元精準媒合、錯題分析與個人化複習。
 - 對外開放前完成兒少隱私告知、必要的家長／監護人同意流程與服務條款。
 - 正式營運前重新評估免驗證 Email 註冊的濫用風險與帳號復原方案。
