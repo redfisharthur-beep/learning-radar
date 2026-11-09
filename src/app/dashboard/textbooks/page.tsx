@@ -3,13 +3,14 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { saveStudentTextbookSelection } from "@/app/actions/student-settings";
 
-type SearchParams = Promise<{ saved?: string; error?: string }>;
+type SearchParams = Promise<{ saved?: string; error?: string; semester?: string }>;
 
 const academicYear = 115;
-const semester = 1;
 
 export default async function TextbookSettingsPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
+  const requestedSemester = Number(params.semester ?? "1");
+  const semester = requestedSemester === 2 ? 2 : 1;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -26,11 +27,12 @@ export default async function TextbookSettingsPage({ searchParams }: { searchPar
     student?.education_stage && student.grade
       ? supabase
           .from("textbook_editions")
-          .select("id, subject_id, edition_name, series_name, publisher_id")
+          .select("id, subject_id, edition_name, series_name, publisher_id, volume_no")
           .eq("is_active", true)
           .eq("education_stage", student.education_stage)
           .eq("grade", student.grade)
           .eq("academic_year", academicYear)
+          .eq("volume_no", semester)
           .order("subject_id")
           .order("edition_name")
       : Promise.resolve({ data: [] }),
@@ -87,10 +89,23 @@ export default async function TextbookSettingsPage({ searchParams }: { searchPar
             <h2 className="mt-1 text-xl font-semibold">
               {student.education_stage === "elementary" ? "國小" : "國中"} {student.education_stage === "elementary" ? student.grade : student.grade - 6} 年級
             </h2>
-            <p className="mt-2 text-sm text-slate-300">{academicYear} 學年度上學期</p>
+            <p className="mt-2 text-sm text-slate-300">{academicYear} 學年度第 {semester} 學期</p>
           </section>
 
-          <div className="mt-6 space-y-4">
+          <nav aria-label="選擇學期" className="mt-6 flex gap-2">
+            {[1, 2].map((term) => (
+              <Link
+                key={term}
+                href={`/dashboard/textbooks?semester=${term}`}
+                aria-current={semester === term ? "page" : undefined}
+                className={`rounded-xl px-5 py-3 text-sm font-semibold ${semester === term ? "bg-blue-700 text-white" : "border bg-white text-slate-700 hover:bg-slate-50"}`}
+              >
+                第 {term} 學期
+              </Link>
+            ))}
+          </nav>
+
+          <div className="mt-4 space-y-4">
             {(subjects ?? []).map((subject) => {
               const choices = availableEditions.filter((edition) => edition.subject_id === subject.id);
               const currentEdition = selectedEditions.get(subject.id);
@@ -120,7 +135,7 @@ export default async function TextbookSettingsPage({ searchParams }: { searchPar
                         <option value="" disabled>請選擇出版社與教材版本</option>
                         {choices.map((edition) => {
                           const publisher = publisherNames.get(edition.publisher_id) ?? "未指定出版社";
-                          const label = [publisher, edition.series_name, edition.edition_name].filter(Boolean).join("｜");
+                          const label = [publisher, edition.edition_name].filter(Boolean).join("｜");
                           return <option key={edition.id} value={edition.id}>{label}</option>;
                         })}
                       </select>
@@ -140,7 +155,7 @@ export default async function TextbookSettingsPage({ searchParams }: { searchPar
         </>
       )}
       <p className="mt-6 text-xs leading-6 text-slate-500">
-        教材出版社目錄目前包含康軒、翰林、南一。正式教材版本與單元內容仍需依實際適用學年度及出版社資料逐筆建立。
+        以上列出國家教育研究院 115 學年度審定本清冊中的可選出版社與冊次；各校實際採用版本可能不同，請依學校發放的課本選擇。教材單元與知識點內容尚待依正式教材資料逐步建檔。
       </p>
     </main>
   );
