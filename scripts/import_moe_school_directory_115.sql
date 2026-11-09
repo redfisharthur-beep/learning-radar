@@ -28,16 +28,16 @@ normalized as (
   select
     nullif(trim(value->>'代碼'), '') as school_code,
     nullif(trim(value->>'學校名稱'), '') as name,
-    regexp_replace(coalesce(value->>'縣市名稱',''), '^\\[[^]]+\\]', '') as city,
+    regexp_replace(coalesce(value->>'縣市名稱',''), '^\[[^]]+\]', '') as city,
     (regexp_match(
       trim(regexp_replace(
-        regexp_replace(coalesce(value->>'地址',''), '^\\[[^]]+\\]', ''),
-        '^' || regexp_replace(coalesce(value->>'縣市名稱',''), '^\\[[^]]+\\]', ''),
+        regexp_replace(coalesce(value->>'地址',''), '^\[[^]]+\]', ''),
+        '^' || regexp_replace(coalesce(value->>'縣市名稱',''), '^\[[^]]+\]', ''),
         ''
       )),
       '^(.+?(區|鄉|鎮|市))'
     ))[1] as district,
-    nullif(trim(regexp_replace(coalesce(value->>'地址',''), '^\\[[^]]+\\]', '')), '') as address,
+    nullif(trim(regexp_replace(coalesce(value->>'地址',''), '^\[[^]]+\]', '')), '') as address,
     nullif(trim(value->>'電話'), '') as phone,
     nullif(trim(value->>'網址'), '') as website,
     nullif(trim(value->>'公/私立'), '') as ownership,
