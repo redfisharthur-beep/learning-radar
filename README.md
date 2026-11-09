@@ -39,6 +39,11 @@
 4. supabase/migrations/20261109060706_seed_naer_115_textbook_editions.sql
 5. supabase/migrations/20261109060932_correct_grade9_social_approved_publishers.sql
 
+## 執行環境與 CI
+- Node.js 22 或更新版本。
+- Supabase SSR 與 Supabase JS SDK 已鎖定直接依賴版本；package-lock.json 提交至 Repository。
+- GitHub Actions 使用 npm ci、TypeScript 型別檢查與 Next.js production build；最新檢查已通過。
+
 ## 本機啟動
 1. npm install
 2. 複製 .env.example 為 .env.local
@@ -47,6 +52,11 @@
 
 ## 程式檢查
 - GitHub Actions 已通過 TypeScript 型別檢查與 Next.js production build（2026-11-09）。
+
+## Vercel 部署狀態
+- Repository 已準備使用 Vercel 的 Next.js 預設建置流程。
+- 尚待在 Vercel 匯入此 Repository，設定 NEXT_PUBLIC_SUPABASE_URL 與 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY，並完成第一次部署。
+- 部署取得正式 URL 後，再設定 Supabase Auth Site URL 與 Redirect URLs。
 
 ## 尚待完成
 - Vercel 專案部署與正式環境變數。
