@@ -397,6 +397,7 @@ export type Database = {
           series_name: string | null
           subject_id: string
           updated_at: string
+          volume_no: number
         }
         Insert: {
           academic_year: number
@@ -411,6 +412,7 @@ export type Database = {
           series_name?: string | null
           subject_id: string
           updated_at?: string
+          volume_no?: number
         }
         Update: {
           academic_year?: number
@@ -425,6 +427,7 @@ export type Database = {
           series_name?: string | null
           subject_id?: string
           updated_at?: string
+          volume_no?: number
         }
         Relationships: [
           {
