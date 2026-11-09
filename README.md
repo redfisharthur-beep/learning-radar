@@ -27,8 +27,9 @@
 ## 教材與課綱目錄
 - 已建立出版社、教材版本、階層式單元、知識點、單元－知識點關聯、能力／認知／難度標籤與學生教材選擇資料表。
 - 已建立康軒、翰林、南一、何嘉仁、佳音、南億興業等出版社資料及 13 個通用學習標籤。
-- 已依國家教育研究院 115 學年度審定本清冊，匯入國小／國中五科各年級、第一冊／第二冊的可選審定出版社組合；各校實際採用版本仍需由學生依學校課本確認。
+- 已依國家教育研究院 115 學年度審定本清冊，匯入 238 組國小／國中五科各年級、第一冊／第二冊的有效可選審定出版社組合；各校實際採用版本仍需由學生依學校課本確認。
 - 已建立 115 學年度審定本可選版本（出版社／年級／冊次）；尚未匯入出版社各冊實際目錄、課文、單元章節與知識點內容，介面不會虛構教材資訊。
+- 教材版本頁可切換上／下學期，並驗證學生年級、科目與冊次；九年級社會科已依官方清冊排除南億興業選項。
 
 ## 資料庫 Migration
 依序對應東京 Supabase 專案 Migration 紀錄：
@@ -36,6 +37,7 @@
 2. supabase/migrations/20261109054953_index_student_profile_school_fk.sql
 3. supabase/migrations/20261109060308_phase2_curriculum_catalog.sql
 4. supabase/migrations/20261109060706_seed_naer_115_textbook_editions.sql
+5. supabase/migrations/20261109060932_correct_grade9_social_approved_publishers.sql
 
 ## 本機啟動
 1. npm install
