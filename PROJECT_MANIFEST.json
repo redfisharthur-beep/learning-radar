@@ -1,6 +1,6 @@
 {
   "project": "Learning Radar",
-  "phase": "Phase 2 - authenticated student profile and curriculum catalogue (pre-pilot)",
+  "phase": "Phase 3 - AI-generated practice, saved questions and student answer workflow (pre-pilot)",
   "files": [
     ".env.example",
     ".github/ISSUE_TEMPLATE/bug_report.md",
@@ -37,7 +37,16 @@
     "supabase/migrations/20261109100000_add_school_textbook_adoptions.sql",
     "supabase/migrations/20261109110000_preserve_school_publisher_labels_and_evidence.sql",
     "tailwind.config.ts",
-    "tsconfig.json"
+    "tsconfig.json",
+    "src/app/actions/practice.ts",
+    "src/app/api/practice/generate/route.ts",
+    "src/app/dashboard/practice/new/page.tsx",
+    "src/app/dashboard/practice/page.tsx",
+    "src/app/dashboard/practice/[id]/page.tsx",
+    "src/components/practice/NewPracticeForm.tsx",
+    "src/lib/supabase/admin.ts",
+    "supabase/migrations/20261109130000_add_ai_practice_question_workflow.sql",
+    "supabase/migrations/20261109140000_secure_practice_answer_access_and_scoring.sql"
   ],
   "notes": [
     "Supabase project learning-radar is active in Tokyo (ap-northeast-1).",
@@ -51,12 +60,17 @@
     "Vercel Production domain is https://learning-radar-wheat.vercel.app; Preview deployments remain SSO protected.",
     "LINE Login is not implemented; can be added later with a LINE Login channel ID, channel secret and callback URL configuration.",
     "Disabling email confirmation allows unverified email strings to register. A user may not be able to recover a forgotten password via email if they cannot access that mailbox.",
-    "Textbook unit content and knowledge points are not yet imported; AI question generation and assessment analysis are not yet implemented.",
     "School-specific textbook adoption and evidence tables are deployed; 30 grade/subject/semester records have been imported for one junior-high school from its official 115 AY notice; the adoption evidence table stores the official source and independent third-party English-version cross-check.",
     "School-reported publisher labels are preserved separately from NAER-approved catalog publishers; the official Anping English label Hanlin is mapped to the approved Joy publisher based on a third-party 115 English comparison.",
     "The textbook UI links directly to OneClass and AIMii (EduBaania) as secondary cross-check sources; school-year official announcements remain the primary authority.",
     "School adoption coverage is not nationwide yet; when a school/subject has no verified source match, the UI shows no inferred publisher rather than inventing one.",
     "Vercel Serverless Function region has been moved from iad1 to hnd1 (Tokyo) to colocate the app server with the Supabase database.",
-    "Minors' privacy notice and guardian consent workflow must be completed before public launch."
+    "Minors' privacy notice and guardian consent workflow must be completed before public launch.",
+    "AI practice workflow is implemented: generate 5 or 10 original single-choice questions for all five subjects from grade and user-provided exam scope; difficulty options basic/intermediate/advanced/mixed; answers and explanations saved privately.",
+    "Practice history, answer submission, score calculation, per-question feedback and explanations are implemented. A Postgres trigger recalculates the score from the private answer key rather than trusting client-submitted totals.",
+    "Practice question answer keys and attempt details are not granted to browser roles; server-only Supabase admin client performs the protected reads and writes after verifying the Supabase Auth user.",
+    "AI generation endpoint uses the OpenAI Responses API with Structured Outputs, store=false, default model gpt-6-luna, and a per-user cap of 5 generated sets per rolling 24 hours.",
+    "OpenAI API Key is not yet configured in Vercel Production. Add OPENAI_API_KEY as a server-side Production environment variable and redeploy to enable live model calls. OPENAI_MODEL is optional.",
+    "The first AI question release creates original multiple-choice practice questions only and uses the student's typed scope as the primary content source because publisher curriculum unit and knowledge-point tables are not yet populated."
   ]
 }
