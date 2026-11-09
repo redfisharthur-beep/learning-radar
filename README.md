@@ -123,7 +123,7 @@
 13. `supabase/migrations/20261109153000_record_practice_answers_after_attempt_insert.sql`
 14. `supabase/migrations/20261109160000_allow_variable_question_count_for_mistake_reviews.sql`
 15. `supabase/migrations/20261109163000_fix_practice_answer_validation_jsonb_count.sql`
-16. `supabase/migrations/20261109112049_school_adoptions_and_manual_override.sql`
+16. `supabase/migrations/20261109192049_school_adoptions_and_manual_override.sql`
 
 
 ## AI 出題設定與啟用
