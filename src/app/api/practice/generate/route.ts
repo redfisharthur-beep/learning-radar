@@ -5,13 +5,14 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 export const preferredRegion = "hnd1";
 
-const MODEL = process.env.OPENAI_MODEL?.trim() || "gpt-6-luna";
+const MODEL = process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash";
 
 export async function GET() {
-  const apiKey = process.env.OPENAI_API_KEY?.trim();
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
   const base = {
     service: "learning-radar-practice-generation",
-    diagnosticVersion: "2026-11-09-3",
+    provider: "google-gemini",
+    diagnosticVersion: "2026-11-09-gemini-1",
     model: MODEL,
     apiKeyConfigured: Boolean(apiKey),
     deploymentCommit: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
@@ -19,15 +20,15 @@ export async function GET() {
 
   if (!apiKey) {
     return Response.json(
-      { ...base, openaiConnection: "not_checked", diagnosis: "OPENAI_KEY_MISSING" },
+      { ...base, providerConnection: "not_checked", diagnosis: "GEMINI_KEY_MISSING" },
       { headers: { "Cache-Control": "no-store, max-age=0" }, status: 503 }
     );
   }
 
   try {
-    const response = await fetch("https://api.openai.com/v1/models", {
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models", {
       method: "GET",
-      headers: { Authorization: "Bearer " + apiKey },
+      headers: { "x-goog-api-key": apiKey },
       cache: "no-store",
       signal: AbortSignal.timeout(8000),
     });
@@ -35,33 +36,38 @@ export async function GET() {
     const error = data.error && typeof data.error === "object"
       ? data.error as Record<string, unknown>
       : {};
-    const models = Array.isArray(data.data) ? data.data : [];
-    const modelAvailable = response.ok && models.some((item) =>
-      item && typeof item === "object" && (item as Record<string, unknown>).id === MODEL
-    );
+    const models = Array.isArray(data.models) ? data.models : [];
+    const modelAvailable = response.ok && models.some((item) => {
+      if (!item || typeof item !== "object") return false;
+      const model = item as Record<string, unknown>;
+      const methods = Array.isArray(model.supportedGenerationMethods)
+        ? model.supportedGenerationMethods
+        : [];
+      return model.name === "models/" + MODEL && methods.includes("generateContent");
+    });
 
     return Response.json(
       {
         ...base,
-        openaiConnection: response.ok ? "connected" : "api_rejected",
-        openaiHttpStatus: response.status,
-        openaiErrorType: typeof error.type === "string" ? error.type : null,
-        openaiErrorCode: typeof error.code === "string" ? error.code : null,
-        modelListed: modelAvailable,
+        providerConnection: response.ok ? "connected" : "api_rejected",
+        providerHttpStatus: response.status,
+        providerErrorStatus: typeof error.status === "string" ? error.status : null,
+        providerErrorCode: typeof error.code === "number" ? error.code : null,
+        modelAvailable,
         diagnosis: response.status === 401
-          ? "OPENAI_KEY_INVALID"
+          ? "GEMINI_KEY_INVALID"
           : response.status === 403
-            ? "OPENAI_PERMISSION_OR_BILLING"
+            ? "GEMINI_PERMISSION_DENIED"
             : response.status === 429
-              ? "OPENAI_RATE_OR_QUOTA"
+              ? "GEMINI_QUOTA_OR_RATE_LIMIT"
               : !response.ok
-                ? "OPENAI_API_REJECTED"
+                ? "GEMINI_API_REJECTED"
                 : modelAvailable
-                  ? "OPENAI_READY"
-                  : "MODEL_NOT_LISTED",
+                  ? "GEMINI_READY"
+                  : "GEMINI_MODEL_NOT_AVAILABLE",
       },
-      { headers: { "Cache-Control": "no-store, max-age=0" } },
-      );
+      { headers: { "Cache-Control": "no-store, max-age=0" } }
+    );
   } catch (error) {
     const err = error instanceof Error ? error : new Error("Unknown fetch error");
     const cause = err.cause && typeof err.cause === "object"
@@ -70,12 +76,12 @@ export async function GET() {
     return Response.json(
       {
         ...base,
-        openaiConnection: "failed",
+        providerConnection: "failed",
         errorName: err.name,
         errorCode: typeof cause.code === "string" ? cause.code : null,
         diagnosis: err.name === "TimeoutError" || err.name === "AbortError"
-          ? "OPENAI_HEALTH_CHECK_TIMEOUT"
-          : "OPENAI_NETWORK_OR_TLS_ERROR",
+          ? "GEMINI_HEALTH_CHECK_TIMEOUT"
+          : "GEMINI_NETWORK_OR_TLS_ERROR",
       },
       { headers: { "Cache-Control": "no-store, max-age=0" }, status: 502 }
     );
@@ -147,16 +153,17 @@ function parseGeneratedSet(value: unknown, expectedCount: number): GeneratedSet 
 }
 
 function extractOutputText(data: Record<string, unknown>): string {
-  if (typeof data.output_text === "string") return data.output_text;
-  if (!Array.isArray(data.output)) return "";
-  return data.output
-    .flatMap((item) => {
-      if (!item || typeof item !== "object") return [];
-      const content = (item as Record<string, unknown>).content;
-      return Array.isArray(content) ? content : [];
-    })
-    .filter((item) => item && typeof item === "object" && (item as Record<string, unknown>).type === "output_text")
-    .map((item) => String((item as Record<string, unknown>).text ?? ""))
+  if (!Array.isArray(data.candidates)) return "";
+  const candidate = data.candidates[0];
+  if (!candidate || typeof candidate !== "object") return "";
+  const content = (candidate as Record<string, unknown>).content;
+  if (!content || typeof content !== "object") return "";
+  const parts = (content as Record<string, unknown>).parts;
+  if (!Array.isArray(parts)) return "";
+  return parts
+    .filter((part) => part && typeof part === "object")
+    .map((part) => String((part as Record<string, unknown>).text ?? ""))
+    .filter(Boolean)
     .join("");
 }
 
@@ -171,12 +178,12 @@ export async function POST(request: Request) {
     }
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) {
     return jsonError(
-      "AI 出題尚未啟用：請先在 Vercel 專案環境變數新增 OPENAI_API_KEY，儲存後重新部署。",
+      "AI 出題尚未啟用：請先在 Vercel Production 環境變數新增 GEMINI_API_KEY，儲存後重新部署。",
       503,
-      "OPENAI_NOT_CONFIGURED"
+      "GEMINI_NOT_CONFIGURED"
     );
   }
 
@@ -340,7 +347,6 @@ export async function POST(request: Request) {
   const userPrompt = [
     "學生學段：" + stageLabel,
     "學生年級：" + gradeLabel,
-    "學校：" + (schoolName ?? "未提供"),
     "學年度：" + academicYear,
     "學期：第 " + semester + " 學期",
     "科目：" + subject.name,
@@ -393,34 +399,36 @@ export async function POST(request: Request) {
     required: ["title", "teacher_note", "questions"],
   };
 
-  let openAiResponse: Response;
+  let geminiResponse: Response;
   try {
-    openAiResponse = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer " + apiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        reasoning: { effort: "none" },
-        store: false,
-        max_output_tokens: questionCount === 10 ? 7000 : 4000,
-        input: [
-          { role: "system", content: [{ type: "input_text", text: systemPrompt }] },
-          { role: "user", content: [{ type: "input_text", text: userPrompt }] },
-        ],
-        text: {
-          format: {
-            type: "json_schema",
-            name: "learning_radar_practice_set",
-            strict: true,
-            schema,
-          },
+    geminiResponse = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(MODEL) + ":generateContent",
+      {
+        method: "POST",
+        headers: {
+          "x-goog-api-key": apiKey,
+          "Content-Type": "application/json",
         },
-      }),
-      signal: AbortSignal.timeout(50000),
-    });
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: systemPrompt }],
+          },
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: userPrompt }],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.5,
+            maxOutputTokens: questionCount === 10 ? 8192 : 4096,
+            responseMimeType: "application/json",
+            responseSchema: schema,
+          },
+        }),
+        signal: AbortSignal.timeout(50000),
+      }
+    );
   } catch (error) {
     const err = error instanceof Error ? error : new Error("Unknown fetch error");
     const cause = err.cause && typeof err.cause === "object"
@@ -428,7 +436,7 @@ export async function POST(request: Request) {
       : {};
     const causeCode = typeof cause.code === "string" ? cause.code : undefined;
     const timedOut = err.name === "TimeoutError" || err.name === "AbortError";
-    console.error("[practice.generate] OpenAI fetch failed", {
+    console.error("[practice.generate] Gemini fetch failed", {
       errorName: err.name,
       causeName: typeof cause.name === "string" ? cause.name : undefined,
       causeCode,
@@ -436,48 +444,71 @@ export async function POST(request: Request) {
     });
     return jsonError(
       timedOut
-        ? "連線 OpenAI API 逾時，請稍後再試。"
-        : "無法連線至 OpenAI API，請稍後再試（診斷代碼：OPENAI_CONNECTION_FAILED）。",
+        ? "Gemini AI 連線逾時，請稍後再試。"
+        : "無法連線至 Google Gemini API，請稍後再試（診斷代碼：GEMINI_CONNECTION_FAILED）。",
       timedOut ? 504 : 502,
-      timedOut ? "OPENAI_TIMEOUT" : "OPENAI_CONNECTION_FAILED"
+      timedOut ? "GEMINI_TIMEOUT" : "GEMINI_CONNECTION_FAILED"
     );
   }
-
-  const responseData = await openAiResponse.json().catch(() => ({})) as Record<string, unknown>;
-  if (!openAiResponse.ok) {
+  const responseData = await geminiResponse.json().catch(() => ({})) as Record<string, unknown>;
+  if (!geminiResponse.ok) {
     const apiError = responseData.error && typeof responseData.error === "object"
       ? responseData.error as Record<string, unknown>
       : {};
-    console.error("[practice.generate] OpenAI API returned an error", {
-      status: openAiResponse.status,
-      type: typeof apiError.type === "string" ? apiError.type : undefined,
-      code: typeof apiError.code === "string" ? apiError.code : undefined,
-      param: typeof apiError.param === "string" ? apiError.param : undefined,
+    const apiErrorStatus = typeof apiError.status === "string" ? apiError.status : undefined;
+    const apiErrorMessage = typeof apiError.message === "string" ? apiError.message : undefined;
+    console.error("[practice.generate] Gemini API returned an error", {
+      httpStatus: geminiResponse.status,
+      apiStatus: apiErrorStatus,
+      apiCode: typeof apiError.code === "number" ? apiError.code : undefined,
     });
-    if (openAiResponse.status === 401) return jsonError("AI 服務金鑰無效，請檢查 Vercel 的 OPENAI_API_KEY。", 502, "OPENAI_AUTH_FAILED");
-    if (openAiResponse.status === 403) return jsonError("OpenAI API 拒絕此請求，請檢查 API 專案權限與帳務狀態。", 502, "OPENAI_PERMISSION_DENIED");
-    if (openAiResponse.status === 404) return jsonError("找不到指定的 AI 模型，請檢查 OPENAI_MODEL 設定。", 502, "OPENAI_MODEL_NOT_FOUND");
-    if (openAiResponse.status === 429) {
-      const apiErrorCode = typeof apiError.code === "string" ? apiError.code : "";
-      if (apiErrorCode === "credit_balance_exhausted") {
-        return jsonError("OpenAI API 預付額度已用完。請至 API Billing 加值，待餘額更新後再產生題目。", 429, "OPENAI_CREDIT_BALANCE_EXHAUSTED");
-      }
-      if (apiErrorCode === "organization_spend_limit_exceeded" || apiErrorCode === "project_spend_limit_exceeded") {
-        return jsonError("OpenAI API 已達到組織或專案支出上限。請至 API Limits 調整支出上限後再試。", 429, "OPENAI_SPEND_LIMIT_EXCEEDED");
-      }
-      if (apiErrorCode === "organization_usage_limit_exceeded") {
-        return jsonError("OpenAI API 已達到組織核准的使用上限，請檢查 API Limits 或聯繫管理員。", 429, "OPENAI_USAGE_LIMIT_EXCEEDED");
-      }
-      if (apiErrorCode === "rate_limit_exceeded" || apiError.code === "slow_down") {
-        return jsonError("AI 請求過於頻繁，請稍候再試。", 429, "OPENAI_RATE_LIMIT");
-      }
-      return jsonError("OpenAI API 用量或額度限制已觸發。請檢查 API Billing 與 Limits。", 429, "OPENAI_QUOTA_OR_RATE_LIMIT");
+    if (geminiResponse.status === 400) {
+      return jsonError("Gemini API 不接受目前的出題格式或參數，請查看診斷紀錄。", 502, "GEMINI_INVALID_REQUEST");
     }
-    if (openAiResponse.status === 400) return jsonError("OpenAI API 不接受目前的出題參數，請查看診斷紀錄。", 502, "OPENAI_INVALID_REQUEST");
-    return jsonError("AI 出題服務暫時無法完成請求，請稍後再試。", 502, "OPENAI_REQUEST_FAILED");
+    if (geminiResponse.status === 401) {
+      return jsonError("Gemini API 金鑰驗證失敗，請檢查 Vercel 的 GEMINI_API_KEY。", 502, "GEMINI_AUTH_FAILED");
+    }
+    if (geminiResponse.status === 403) {
+      return jsonError("Google Gemini API 拒絕此金鑰，請確認 API Key 類型及 Generative Language API 權限。", 502, "GEMINI_PERMISSION_DENIED");
+    }
+    if (geminiResponse.status === 404) {
+      return jsonError("找不到指定的 Gemini 模型，請確認 GEMINI_MODEL 設定。", 502, "GEMINI_MODEL_NOT_FOUND");
+    }
+    if (geminiResponse.status === 429) {
+      return jsonError("Gemini 免費用量或速率限制已達上限。請至 Google AI Studio 查看 Usage & Limits，稍後再試或等待額度重置。", 429, "GEMINI_QUOTA_OR_RATE_LIMIT");
+    }
+    if (geminiResponse.status >= 500) {
+      return jsonError("Google Gemini 服務暫時忙碌，請稍後再試。", 503, "GEMINI_TEMPORARILY_UNAVAILABLE");
+    }
+    return jsonError(
+      apiErrorMessage
+        ? "Gemini API 請求失敗：" + apiErrorMessage.slice(0, 180)
+        : "Gemini API 請求失敗，請稍後再試。",
+      502,
+      "GEMINI_REQUEST_FAILED"
+    );
   }
 
   const outputText = extractOutputText(responseData);
+  if (!outputText) {
+    const promptFeedback = responseData.promptFeedback && typeof responseData.promptFeedback === "object"
+      ? responseData.promptFeedback as Record<string, unknown>
+      : {};
+    const blockReason = typeof promptFeedback.blockReason === "string" ? promptFeedback.blockReason : undefined;
+    console.error("[practice.generate] Gemini returned no text", {
+      blockReason,
+      finishReason: Array.isArray(responseData.candidates) && responseData.candidates[0] && typeof responseData.candidates[0] === "object"
+        ? (responseData.candidates[0] as Record<string, unknown>).finishReason
+        : undefined,
+    });
+    return jsonError(
+      blockReason
+        ? "Gemini 安全檢查未允許這次出題，請調整範圍文字後再試。"
+        : "Gemini 沒有回傳可用題目，請重新產生。",
+      502,
+      "GEMINI_EMPTY_RESPONSE"
+    );
+  }
   let rawGenerated: unknown;
   try {
     rawGenerated = JSON.parse(outputText);
@@ -488,8 +519,8 @@ export async function POST(request: Request) {
   const generated = parseGeneratedSet(rawGenerated, questionCount);
   if (!generated) return jsonError("AI 產生的題目未通過格式與答案檢查，請重新產生。", 502, "QUESTION_VALIDATION_FAILED");
 
-  const usage = responseData.usage && typeof responseData.usage === "object"
-    ? responseData.usage as Record<string, unknown>
+  const usage = responseData.usageMetadata && typeof responseData.usageMetadata === "object"
+    ? responseData.usageMetadata as Record<string, unknown>
     : {};
   const { data: practiceSet, error: setError } = await admin
     .from("practice_sets")
@@ -511,8 +542,8 @@ export async function POST(request: Request) {
       difficulty_level: difficulty,
       question_count: questionCount,
       model: MODEL,
-      input_tokens: typeof usage.input_tokens === "number" ? usage.input_tokens : null,
-      output_tokens: typeof usage.output_tokens === "number" ? usage.output_tokens : null,
+      input_tokens: typeof usage.promptTokenCount === "number" ? usage.promptTokenCount : null,
+      output_tokens: typeof usage.candidatesTokenCount === "number" ? usage.candidatesTokenCount : null,
     })
     .select("id")
     .single();
