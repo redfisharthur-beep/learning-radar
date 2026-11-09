@@ -41,7 +41,7 @@
   ],
   "notes": [
     "Supabase project learning-radar is active in Tokyo (ap-northeast-1).",
-    "Seven database migrations have been applied to the remote project.",
+    "Nine database migrations have been applied to the remote project.",
     "3,349 Ministry of Education school records and 238 active 115 AY NAER-approved textbook options have been seeded.",
     "All 13 public tables have RLS enabled. anon has no public table or sequence grants; authenticated has minimum application grants, with RLS enforcing row ownership.",
     "Default privileges for future public tables, sequences and functions created by postgres have been tightened.",
@@ -52,7 +52,7 @@
     "LINE Login is not implemented; can be added later with a LINE Login channel ID, channel secret and callback URL configuration.",
     "Disabling email confirmation allows unverified email strings to register. A user may not be able to recover a forgotten password via email if they cannot access that mailbox.",
     "Textbook unit content and knowledge points are not yet imported; AI question generation and assessment analysis are not yet implemented.",
-    "School-specific textbook adoption and evidence tables are deployed; 30 grade/subject/semester records have been imported for one junior-high school from its official 115 AY notice.",
+    "School-specific textbook adoption and evidence tables are deployed; 30 grade/subject/semester records have been imported for one junior-high school from its official 115 AY notice; the adoption evidence table stores the official source and independent third-party English-version cross-check.",
     "School-reported publisher labels are preserved separately from NAER-approved catalog publishers; the official Anping English label Hanlin is mapped to the approved Joy publisher based on a third-party 115 English comparison.",
     "The textbook UI links directly to OneClass and AIMii (EduBaania) as secondary cross-check sources; school-year official announcements remain the primary authority.",
     "School adoption coverage is not nationwide yet; when a school/subject has no verified source match, the UI shows no inferred publisher rather than inventing one.",
